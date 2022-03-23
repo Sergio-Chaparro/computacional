@@ -1,7 +1,6 @@
 //Programa para la simulacion del sistema solar, con 8 planetas y el sol
 //Debe ser capaz de representar graficas, obtener periodos, y obtener datos de energia y momento angular
 
-
 #include <math.h>
 #include <stdio.h>
 
@@ -10,15 +9,21 @@
 #define c 1.496E11
 #define Ms 1.99E30
 
-
+//Funciones que usaremos para obtener y transformar los datod
 void DatosIniciales(double **r,double **v,double *m,double t,int N);
 void reescalar(double **r,double **v,double *m,double t,int N);
-void desescalar(double **r,double **v,double *m,double t,int N);
-void Simulacion(double **r,double **v, double **a,double *m,double t,int N, double h, double tmax);
+void desescalar(double **raux,double **r,double **v,double *m,double t,int N);
+void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
+
+//Funciones que usaremos dentro del algoritmod e verlet, junto con este
+void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,int N, double h);
 void aceleracion(double **r,double **a,double *m,int N);
-void velocidad(double **r,double **v, double **a,double *m,int N);
-void posicion(double **r,double **v, double **a,double *m,int N);
-void velocidadauxiliar(double **r,double **v, double **a,double *m,int N);
+void velocidad(double **r,double **v, double **a,double *m,int N,double h);
+void posicion(double **r,double **v, double **a,double *m,int N,double h);
+void velocidadauxiliar(double **r,double **v, double **a,double **w,double *m,int N,double h);
+
+
+//Funciones que usaremos para la comprobacion de resultados
 double momentoangulartotal(double **r,double **v, double **a,double *m,int N);
 
 
@@ -34,22 +39,35 @@ int main(void)
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
-    double a[2][N],v[2][N],r[2][N], w[2][N],m[N],t;
+    double a[2][N],v[2][N],r[2][N], raux[2][N], w[2][N],m[N],t;
+
+    //Declaro el fichero que usaremos para guardar los resultados
+    FILE *resultados;
 
     //Inicializo todos los vectores
-    DatosIniciales(r,v,m,t,N);
-    
-
+    DatosIniciales(r,v,m,t,N);    
     //Reescalamos los datod para poder tratarlos con mas facilidad
     //Usamos masas solares y la distancia tierra-sol
     reescalar(r,v,m,t,N);//A partir de aqui estaran en esas unidades
 
-    //Podemos empezar a simular, con parametros h y tmax
-    
-    Simulacion(r,v,a,m,t,N,h,tmax);
 
-    // Podemos desescalar los datos tras la simulacion
-    desescalar(r,v,m,t,N);
+
+    //Podemos empezar a simular, con parametros h y tmax
+    //Abrimos el fichero para escribir los datos
+    resultados=fopen("resultados.txt","w");
+    //Obtengo las aceleraciones iniciales
+    aceleracion(r,a,m,N);
+
+    //repito el ciclo hasta que nos interese
+    while(t<tmax)
+    {
+        Algoritmo(r,v,a,w,m,t,N,h);
+        Escribedatos(r,v,t,N,resultados);
+        momentoangulartotal(r,v,a,m,N);//falta printear
+    }
+
+    fclose(resultados);
+    
     
     return 0;
 }
@@ -73,6 +91,18 @@ void DatosIniciales(double **r,double **v,double *m,double t,int N)
     return;
 }
 
+//Funcion que escribe datos en un fichero ya abierto 
+void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
+{
+    int i;
+    for(i=0;i<N;i++)
+    {
+        fprintf(f2,"lf\tlf\tlf\tlf\tlf",r[0][i],r[1][i],v[0][i],v[1][i]);        
+    }
+    fprintf(f2,"lf",t);
+    
+    return;
+}
 
 //Funcion que reescala las variables para ser usadas con valores mas sencillos
 void reescalar(double **r,double **v,double *m,double t,int N)
@@ -82,24 +112,25 @@ void reescalar(double **r,double **v,double *m,double t,int N)
     for(i=0;i<N;i++)
     {
         m[i]=m[i]/Ms;
-        for(j=1;j<=2;j++)
+        for(j=0;j<2;j++)
         {
             r[j][i]=r[j][i]/c;
+            v[j][i]=v[j][i]*c*c/(G*Ms);
         }
     }
     return;
 }
-//Funcion que devuelve las variables a la normalidad
-void desescalar(double **r,double **v,double *m,double t,int N)
+//Funcion que devuelve las variables a la normalidad, en el vector raux
+void desescalar(double **raux,double **r,double **v,double *m,double t,int N)
 {
     int i,j;
-    t=t/(G*Ms)*(c*c*c);
+    
     for(i=0;i<N;i++)
     {
-        m[i]=m[i]/Ms;
-        for(j=1;j<=2;j++)
+        
+        for(j=0;j<2;j++)
         {
-            r[j][i]=r[j][i]*c;
+            raux[j][i]=r[j][i]*c;
         }
     }
     return;
@@ -109,22 +140,20 @@ void desescalar(double **r,double **v,double *m,double t,int N)
 
 
 
-void Simulacion(double **r,double **v, double **a,double *m,double t,int N, double h, double tmax)
+void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,int N, double h)
 {
-    int i,j;
-    for(i=0;i<2;i++)
-    {
-        
-    }    
-    while(t<tmax)
-    {
-        
-        t=t+h;
-    }
+    posicion(r,v,a,m,N,h);
+    velocidadauxiliar(r,v,a,w,m,N,h);
+    aceleracion(r,a,m,N);
+    velocidad(r,v,a,m,N,h);
+    t=t+h;
     return;
 }
 
 
+
+//funcion para calcular la aceleracion de todos los cuerpos en funcion de susu posiciones
+//Se usa la segunda ley de newton
 void aceleracion(double **r,double **a,double *m,int N)
 {
     int i,j,planeta;
@@ -154,26 +183,57 @@ void aceleracion(double **r,double **a,double *m,int N)
 
 
 
-void velocidad(double **r,double **v, double **a,double *m,int N)
+void velocidad(double **r,double **v, double **a,double *m,int N,double h)
+{
+    int i,j;
+    for(i=0;i<2;i++)
+    {
+        for(j=0;j<N;j++)
+        {
+            v[i][j]=v[i][j]+0.5*h*a[i][j];
+        }
+    }
+}
+
+
+void posicion(double **r,double **v, double **a,double *m,int N,double h)
+{
+    int i,j;
+    for(i=0;i<2;i++)
+    {
+        for(j=0;j<N;j++)
+        {
+            r[i][j]=r[i][j]+h*v[i][j]+0.5*h*h*a[i][j];
+        }
+    }
+}
 
 
 
 
-
-
-void posicion(double **r,double **v, double **a,double *m,int N)
-
-
-
-
-
-void velocidadauxiliar(double **r,double **v, double **a,double *m,int N)
-
-
-
-
+//velocidad auxiliar que usaremos para el algoritmo de verlet 
+void velocidadauxiliar(double **r,double **v, double **a,double **w,double *m,int N,double h)
+{
+    int i,j;
+    for(i=0;i<2;i++)
+    {
+        for(j=0;j<N;j++)
+        {
+            w[i][j]=v[i][j]+0.5*h*a[i][j];
+        }
+    }
+}
 
 
 
 
 double momentoangulartotal(double **r,double **v, double **a,double *m,int N)
+{
+    int i,j;
+    double suma=0;
+    for(j=0;j<N;j++)
+    {
+        suma=suma+m[j]*(r[0][j]*v[1][j]-r[1][j]*v[0][j]);
+    }
+    return suma;
+}

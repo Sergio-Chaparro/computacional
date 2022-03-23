@@ -1,4 +1,5 @@
 //Programa para la simulacion del sistema solar, con 8 planetas y el sol
+//Debe ser capaz de representar graficas, obtener periodos, y obtener datos de energia y momento angular
 
 
 #include <math.h>
@@ -10,10 +11,15 @@
 #define Ms 1.99E30
 
 
-void DatosIniciales(double r[2][],double v[2][],double m[],double t,int N)
-void reescalar(double r[2][],double m[],double t,int N)
-void desescalar(double r[2][],double m[],double t,int N)
-void Simulacion(double r[2][],double v[2][], double a[2][],double m[],double t,int N, double h, double tmax)
+void DatosIniciales(double **r,double **v,double *m,double t,int N);
+void reescalar(double **r,double **v,double *m,double t,int N);
+void desescalar(double **r,double **v,double *m,double t,int N);
+void Simulacion(double **r,double **v, double **a,double *m,double t,int N, double h, double tmax);
+void aceleracion(double **r,double **a,double *m,int N);
+void velocidad(double **r,double **v, double **a,double *m,int N);
+void posicion(double **r,double **v, double **a,double *m,int N);
+void velocidadauxiliar(double **r,double **v, double **a,double *m,int N);
+double momentoangulartotal(double **r,double **v, double **a,double *m,int N);
 
 
 
@@ -28,7 +34,7 @@ int main(void)
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
-    double a[2][N],v[2][N],r[2][N], m[N],t;
+    double a[2][N],v[2][N],r[2][N], w[2][N],m[N],t;
 
     //Inicializo todos los vectores
     DatosIniciales(r,v,m,t,N);
@@ -36,14 +42,14 @@ int main(void)
 
     //Reescalamos los datod para poder tratarlos con mas facilidad
     //Usamos masas solares y la distancia tierra-sol
-    reescalar(r,m,t,N);//A partir de aqui estaran en esas unidades
+    reescalar(r,v,m,t,N);//A partir de aqui estaran en esas unidades
 
     //Podemos empezar a simular, con parametros h y tmax
     
     Simulacion(r,v,a,m,t,N,h,tmax);
 
     // Podemos desescalar los datos tras la simulacion
-    desescalar(r,m,t,N);
+    desescalar(r,v,m,t,N);
     
     return 0;
 }
@@ -53,14 +59,14 @@ int main(void)
 // el archivo esta hecho de la forma
 // x,y,vx,vy,m   de el elemento i
 // finalmente el valor de t
-void DatosIniciales(double r[2][],double v[2][],double m[],double t,FILE f1)
+void DatosIniciales(double **r,double **v,double *m,double t,int N)
 {
     int i;
-    FILE *f1
+    FILE *f1;
     f1=fopen("datos.txt","r");
     for(i=0;i<N;i++)
     {
-        fscanf(f1,"lf\t\tlf\t\tlf\t\tlf\t\tlf\n",&r[0][i],&r[1][i],&v[0][i],&v[1][i],&m[i]);        
+        fscanf(f1,"lf\t\tlf\t\tlf\t\tlf\t\tlf",&r[0][i],&r[1][i],&v[0][i],&v[1][i],&m[i]);        
     }
     fscanf(f1,"lf",&t);
     fclose(f1);
@@ -69,7 +75,7 @@ void DatosIniciales(double r[2][],double v[2][],double m[],double t,FILE f1)
 
 
 //Funcion que reescala las variables para ser usadas con valores mas sencillos
-void reescalar(double r[2][],double m[],double t,int N)
+void reescalar(double **r,double **v,double *m,double t,int N)
 {
     int i,j;
     t=t*(G*Ms)/(c*c*c);
@@ -84,7 +90,7 @@ void reescalar(double r[2][],double m[],double t,int N)
     return;
 }
 //Funcion que devuelve las variables a la normalidad
-void desescalar(double r[2][],double m[],double t,int N)
+void desescalar(double **r,double **v,double *m,double t,int N)
 {
     int i,j;
     t=t/(G*Ms)*(c*c*c);
@@ -103,8 +109,13 @@ void desescalar(double r[2][],double m[],double t,int N)
 
 
 
-void Simulacion(double r[2][],double v[2][], double a[2][],double m[],double t,double h, double tmax)
+void Simulacion(double **r,double **v, double **a,double *m,double t,int N, double h, double tmax)
 {
+    int i,j;
+    for(i=0;i<2;i++)
+    {
+        
+    }    
     while(t<tmax)
     {
         
@@ -112,3 +123,57 @@ void Simulacion(double r[2][],double v[2][], double a[2][],double m[],double t,d
     }
     return;
 }
+
+
+void aceleracion(double **r,double **a,double *m,int N)
+{
+    int i,j,planeta;
+    double suma;
+
+    for(planeta=0;planeta<9;planeta++)
+    {
+        for(i=0;i<2;i++)
+        {
+        suma=0;
+        for(j=0;j<N;j++)
+        {
+            if(planeta=!j) 
+            {
+
+                suma=suma-m[j]*(r[i][planeta]-r[i][j])/pow(sqrt(pow((r[0][planeta]-r[0][j]),2)+pow((r[1][planeta]-r[1][j]),2)),3);   
+            }
+        }
+        a[i][planeta]=suma;    
+        }
+    }
+    
+    return;
+
+}
+
+
+
+
+void velocidad(double **r,double **v, double **a,double *m,int N)
+
+
+
+
+
+
+void posicion(double **r,double **v, double **a,double *m,int N)
+
+
+
+
+
+void velocidadauxiliar(double **r,double **v, double **a,double *m,int N)
+
+
+
+
+
+
+
+
+double momentoangulartotal(double **r,double **v, double **a,double *m,int N)

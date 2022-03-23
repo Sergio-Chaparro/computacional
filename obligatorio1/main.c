@@ -1,4 +1,4 @@
-//Programa para la simulacion del sistema solar, con 8 planetas
+//Programa para la simulacion del sistema solar, con 8 planetas y el sol
 
 
 #include <math.h>
@@ -10,10 +10,9 @@
 #define Ms 1.99E30
 
 
-void DatosIniciales(double r[2][],double v[2][], double a[2][],double m[],double t,int N)
+void DatosIniciales(double r[2][],double v[2][],double m[],double t,int N)
 void reescalar(double r[2][],double m[],double t,int N)
 void desescalar(double r[2][],double m[],double t,int N)
-void Algoritmo(double r[2][],double v[2][], double a[2][],double m[],int N)
 void Simulacion(double r[2][],double v[2][], double a[2][],double m[],double t,int N, double h, double tmax)
 
 
@@ -23,7 +22,7 @@ int main(void)
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax;
     int N;
-    N=8;
+    N=9;
     h=0.01;
     tmax=5;
 
@@ -32,7 +31,8 @@ int main(void)
     double a[2][N],v[2][N],r[2][N], m[N],t;
 
     //Inicializo todos los vectores
-    DatosIniciales(r,v,a,m,t,N);
+    DatosIniciales(r,v,m,t,N);
+    
 
     //Reescalamos los datod para poder tratarlos con mas facilidad
     //Usamos masas solares y la distancia tierra-sol
@@ -50,9 +50,21 @@ int main(void)
 
 
 //Funcion que aporta los valores iniciales a las variables
-void DatosIniciales(double r[2][],double v[2][], double a[2][],double m[],double t)
+// el archivo esta hecho de la forma
+// x,y,vx,vy,m   de el elemento i
+// finalmente el valor de t
+void DatosIniciales(double r[2][],double v[2][],double m[],double t,FILE f1)
 {
-
+    int i;
+    FILE *f1
+    f1=fopen("datos.txt","r");
+    for(i=0;i<N;i++)
+    {
+        fscanf(f1,"lf\t\tlf\t\tlf\t\tlf\t\tlf\n",&r[0][i],&r[1][i],&v[0][i],&v[1][i],&m[i]);        
+    }
+    fscanf(f1,"lf",&t);
+    fclose(f1);
+    return;
 }
 
 
@@ -60,9 +72,8 @@ void DatosIniciales(double r[2][],double v[2][], double a[2][],double m[],double
 void reescalar(double r[2][],double m[],double t,int N)
 {
     int i,j;
-    double memoria;
     t=t*(G*Ms)/(c*c*c);
-    for(i=1;i<=N;i++)
+    for(i=0;i<N;i++)
     {
         m[i]=m[i]/Ms;
         for(j=1;j<=2;j++)
@@ -77,7 +88,7 @@ void desescalar(double r[2][],double m[],double t,int N)
 {
     int i,j;
     t=t/(G*Ms)*(c*c*c);
-    for(i=1;i<=N;i++)
+    for(i=0;i<N;i++)
     {
         m[i]=m[i]/Ms;
         for(j=1;j<=2;j++)
@@ -89,12 +100,6 @@ void desescalar(double r[2][],double m[],double t,int N)
 }
 
 
-void Algoritmo(double r[2][],double v[2][], double a[2][],double m[],int N)
-
-
-
-
-
 
 
 
@@ -102,7 +107,7 @@ void Simulacion(double r[2][],double v[2][], double a[2][],double m[],double t,d
 {
     while(t<tmax)
     {
-        Algoritmo(r,v,a,m,N);
+        
         t=t+h;
     }
     return;

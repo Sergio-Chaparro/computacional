@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 //defino las constantes que me harán falta para reescalar las variables 
 #define G 6.67E-11
 #define c 1.496E11
@@ -35,7 +36,7 @@ int main(void)
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax;
     h=0.01;
-    tmax=5;
+    tmax=1;
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
@@ -84,9 +85,9 @@ void DatosIniciales(double r[][N],double v[][N],double m[],double t)
     f1=fopen("datos.txt","r");
     for(i=0;i<N;i++)
     {
-        fscanf(f1,"lf\t\tlf\t\tlf\t\tlf\t\tlf",&r[0][i],&r[1][i],&v[0][i],&v[1][i],&m[i]);        
+        fscanf(f1,"%lf\t\t%lf\t\t%lf\t\t%lf\t\t%lf",&r[0][i],&r[1][i],&v[0][i],&v[1][i],&m[i]);        
     }
-    fscanf(f1,"lf",&t);
+    fscanf(f1,"%lf",&t);
     fclose(f1);
     return;
 }
@@ -97,7 +98,7 @@ void Escribedatos(double r[][N],double v[][N],double t,FILE *f2)
     int i;
     for(i=0;i<N;i++)
     {
-        fprintf(f2,"lf,lf",r[0][i],r[1][i]);        
+        fprintf(f2,"%lf,%lf",r[0][i],r[1][i]);        
     }
     //fprintf(f2,"lf",t);
     
@@ -164,15 +165,14 @@ void aceleracion(double r[][N],double a[][N],double m[])
     {
         for(i=0;i<2;i++)
         {
-        suma=0;
-        for(j=0;j<N;j++)
-        {
-            if(planeta=!j) 
+            suma=0;
+            for(j=0;j<N;j++)
             {
-
-                suma=suma-m[j]*(r[i][planeta]-r[i][j])/pow(sqrt(pow((r[0][planeta]-r[0][j]),2)+pow((r[1][planeta]-r[1][j]),2)),3);   
+                if(planeta=!j) 
+                {
+                    suma=suma-m[j]*(r[i][planeta]-r[i][j])/pow(sqrt(pow((r[0][planeta]-r[0][j]),2)+pow((r[1][planeta]-r[1][j]),2)),3);   
+                }           
             }
-        }
         a[i][planeta]=suma;    
         }
     }

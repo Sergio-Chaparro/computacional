@@ -97,9 +97,9 @@ void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
     int i;
     for(i=0;i<N;i++)
     {
-        fprintf(f2,"lf\tlf\tlf\tlf\tlf",r[0][i],r[1][i],v[0][i],v[1][i]);        
+        fprintf(f2,"lf,lf",r[0][i],r[1][i]);        
     }
-    fprintf(f2,"lf",t);
+    //fprintf(f2,"lf",t);
     
     return;
 }
@@ -139,7 +139,8 @@ void desescalar(double **raux,double **r,double **v,double *m,double t,int N)
 
 
 
-
+//Funcion que realiza el algoritmo de verlet, necesita la aceleracion inicial ya calculada, 
+//junto con la posicion y la velocidad ya dadas
 void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,int N, double h)
 {
     posicion(r,v,a,m,N,h);

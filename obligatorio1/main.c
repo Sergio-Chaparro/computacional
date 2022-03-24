@@ -3,28 +3,30 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 //defino las constantes que me harán falta para reescalar las variables 
 #define G 6.67E-11
 #define c 1.496E11
 #define Ms 1.99E30
+#define N 9
 
 //Funciones que usaremos para obtener y transformar los datod
-void DatosIniciales(double **r,double **v,double *m,double t,int N);
-void reescalar(double **r,double **v,double *m,double t,int N);
-void desescalar(double **raux,double **r,double **v,double *m,double t,int N);
-void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
+void DatosIniciales(double r[][N],double v[][N],double m[],double t);
+void reescalar(double r[][N],double v[][N],double m[],double t);
+void desescalar(double r[][N],double v[][N],double m[],double t);
+void Escribedatos(double r[][N],double v[][N],double t,FILE *f2);
 
 //Funciones que usaremos dentro del algoritmod e verlet, junto con este
-void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,int N, double h);
-void aceleracion(double **r,double **a,double *m,int N);
-void velocidad(double **r,double **v, double **a,double *m,int N,double h);
-void posicion(double **r,double **v, double **a,double *m,int N,double h);
-void velocidadauxiliar(double **r,double **v, double **a,double **w,double *m,int N,double h);
+void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[],double t, double h);
+void aceleracion(double r[][N],double a[][N],double m[]);
+void velocidad(double r[][N],double v[][N], double a[][N],double m[],double h);
+void posicion(double r[][N],double v[][N], double a[][N],double m[],double h);
+void velocidadauxiliar(double r[][N],double v[][N], double a[][N],double w[][N],double m[],double h);
 
 
 //Funciones que usaremos para la comprobacion de resultados
-double momentoangulartotal(double **r,double **v, double **a,double *m,int N);
+double momentoangulartotal(double r[][N],double v[][N], double a[][N],double m[]);
 
 
 
@@ -32,8 +34,6 @@ int main(void)
 {
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax;
-    int N;
-    N=9;
     h=0.01;
     tmax=5;
 
@@ -45,10 +45,10 @@ int main(void)
     FILE *resultados;
 
     //Inicializo todos los vectores
-    DatosIniciales(r,v,m,t,N);    
+    DatosIniciales(r,v,m,t);    
     //Reescalamos los datod para poder tratarlos con mas facilidad
     //Usamos masas solares y la distancia tierra-sol
-    reescalar(r,v,m,t,N);//A partir de aqui estaran en esas unidades
+    reescalar(r,v,m,t);//A partir de aqui estaran en esas unidades
 
 
 
@@ -56,14 +56,14 @@ int main(void)
     //Abrimos el fichero para escribir los datos
     resultados=fopen("resultados.txt","w");
     //Obtengo las aceleraciones iniciales
-    aceleracion(r,a,m,N);
+    aceleracion(r,a,m);
 
     //repito el ciclo hasta que nos interese
     while(t<tmax)
     {
-        Algoritmo(r,v,a,w,m,t,N,h);
-        Escribedatos(r,v,t,N,resultados);
-        momentoangulartotal(r,v,a,m,N);//falta printear
+        Algoritmo(r,v,a,w,m,t,h);
+        Escribedatos(r,v,t,resultados);
+        momentoangulartotal(r,v,a,m);//falta printear
     }
 
     fclose(resultados);
@@ -77,7 +77,7 @@ int main(void)
 // el archivo esta hecho de la forma
 // x,y,vx,vy,m   de el elemento i
 // finalmente el valor de t
-void DatosIniciales(double **r,double **v,double *m,double t,int N)
+void DatosIniciales(double r[][N],double v[][N],double m[],double t)
 {
     int i;
     FILE *f1;
@@ -92,7 +92,7 @@ void DatosIniciales(double **r,double **v,double *m,double t,int N)
 }
 
 //Funcion que escribe datos en un fichero ya abierto 
-void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
+void Escribedatos(double r[][N],double v[][N],double t,FILE *f2)
 {
     int i;
     for(i=0;i<N;i++)
@@ -105,7 +105,7 @@ void Escribedatos(double **r,double **v,double t,int N,FILE *f2);
 }
 
 //Funcion que reescala las variables para ser usadas con valores mas sencillos
-void reescalar(double **r,double **v,double *m,double t,int N)
+void reescalar(double r[][N],double v[][N],double m[],double t)
 {
     int i,j;
     t=t*(G*Ms)/(c*c*c);
@@ -121,7 +121,7 @@ void reescalar(double **r,double **v,double *m,double t,int N)
     return;
 }
 //Funcion que devuelve las variables a la normalidad, en el vector raux
-void desescalar(double **raux,double **r,double **v,double *m,double t,int N)
+void desescalar(double r[][N],double v[][N],double m[],double t)
 {
     int i,j;
     
@@ -130,7 +130,7 @@ void desescalar(double **raux,double **r,double **v,double *m,double t,int N)
         
         for(j=0;j<2;j++)
         {
-            raux[j][i]=r[j][i]*c;
+            r[j][i]=r[j][i]*c;
         }
     }
     return;
@@ -141,12 +141,12 @@ void desescalar(double **raux,double **r,double **v,double *m,double t,int N)
 
 //Funcion que realiza el algoritmo de verlet, necesita la aceleracion inicial ya calculada, 
 //junto con la posicion y la velocidad ya dadas
-void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,int N, double h)
+void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[],double t, double h)
 {
-    posicion(r,v,a,m,N,h);
-    velocidadauxiliar(r,v,a,w,m,N,h);
-    aceleracion(r,a,m,N);
-    velocidad(r,v,a,m,N,h);
+    posicion(r,v,a,m,h);
+    velocidadauxiliar(r,v,a,w,m,h);
+    aceleracion(r,a,m);
+    velocidad(r,v,a,m,h);
     t=t+h;
     return;
 }
@@ -155,7 +155,7 @@ void Algoritmo(double **r,double **v, double **a,double **w,double *m,double t,i
 
 //funcion para calcular la aceleracion de todos los cuerpos en funcion de susu posiciones
 //Se usa la segunda ley de newton
-void aceleracion(double **r,double **a,double *m,int N)
+void aceleracion(double r[][N],double a[][N],double m[])
 {
     int i,j,planeta;
     double suma;
@@ -184,7 +184,7 @@ void aceleracion(double **r,double **a,double *m,int N)
 
 
 
-void velocidad(double **r,double **v, double **a,double *m,int N,double h)
+void velocidad(double r[][N],double v[][N], double a[][N],double m[],double h)
 {
     int i,j;
     for(i=0;i<2;i++)
@@ -197,7 +197,7 @@ void velocidad(double **r,double **v, double **a,double *m,int N,double h)
 }
 
 
-void posicion(double **r,double **v, double **a,double *m,int N,double h)
+void posicion(double r[][N],double v[][N], double a[][N],double m[],double h)
 {
     int i,j;
     for(i=0;i<2;i++)
@@ -213,7 +213,7 @@ void posicion(double **r,double **v, double **a,double *m,int N,double h)
 
 
 //velocidad auxiliar que usaremos para el algoritmo de verlet 
-void velocidadauxiliar(double **r,double **v, double **a,double **w,double *m,int N,double h)
+void velocidadauxiliar(double r[][N],double v[][N], double a[][N],double w[][N],double m[],double h)
 {
     int i,j;
     for(i=0;i<2;i++)
@@ -228,7 +228,7 @@ void velocidadauxiliar(double **r,double **v, double **a,double **w,double *m,in
 
 
 
-double momentoangulartotal(double **r,double **v, double **a,double *m,int N)
+double momentoangulartotal(double r[][N],double v[][N], double a[][N],double m[])
 {
     int i,j;
     double suma=0;

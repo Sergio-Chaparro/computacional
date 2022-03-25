@@ -47,7 +47,7 @@ import numpy as np
 
 # Parámetros
 # ========================================
-file_in = "planets_data.dat" # Nombre del fichero de datos
+file_in = "resultados.txt" # Nombre del fichero de datos
 file_out = "sistemasolar" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
@@ -56,7 +56,7 @@ x_max = 50
 y_min = -50 
 y_max = 50
 
-interval = 100 # Tiempo entre fotogramas en milisegundos
+interval = 10 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
 trail_width = 1 # Ancho de la estela
 save_to_file = True # False: muestra la animación por pantalla,

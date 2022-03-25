@@ -168,7 +168,7 @@ void aceleracion(double r[][N],double a[][N],double m[])
             suma=0;
             for(j=0;j<N;j++)
             {
-                if(planeta=!j) 
+                if(planeta!=j) 
                 {
                     suma=suma-m[j]*(r[i][planeta]-r[i][j])/pow(sqrt(pow((r[0][planeta]-r[0][j]),2)+pow((r[1][planeta]-r[1][j]),2)),3);   
                 }           

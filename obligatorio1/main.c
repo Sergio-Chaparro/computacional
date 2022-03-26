@@ -7,7 +7,7 @@
 
 
 //defino las constantes que me harán falta para reescalar las variables 
-#define G 1
+#define G 6.67E-11
 #define c 1.496E11
 #define Ms 1.99E30
 #define N 9
@@ -21,7 +21,7 @@ void Escribedatos(double r[][N],double v[][N],double t,FILE *f2,int reduccion,in
 //Funciones que usaremos dentro del algoritmod e verlet, junto con este
 void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[], double h);
 void aceleracion(double r[][N],double a[][N],double m[]);
-void velocidad(double r[][N],double v[][N], double a[][N],double m[],double h);
+void velocidad(double r[][N],double v[][N],double w[][N], double a[][N],double m[],double h);
 void posicion(double r[][N],double v[][N], double a[][N],double m[],double h);
 void velocidadauxiliar(double r[][N],double v[][N], double a[][N],double w[][N],double m[],double h);
 
@@ -36,7 +36,7 @@ int main(void)
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax,momentoang;
     h=0.001;
-    tmax=100;
+    tmax=1000;
 
     //Defino una variable reduccion, cantidad entre
     //la cyal dividire el numero de resultados obtenidos
@@ -133,7 +133,7 @@ void reescalar(double r[][N],double v[][N],double m[],double t)
         for(j=0;j<2;j++)
         {
             r[j][i]=r[j][i]/c;
-            v[j][i]=v[j][i]/c*sqrt(c*c*c/(G*Ms));
+            v[j][i]=v[j][i]*sqrt(c/(G*Ms));
         }
     }
     return;
@@ -164,7 +164,7 @@ void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m
     posicion(r,v,a,m,h);
     velocidadauxiliar(r,v,a,w,m,h);
     aceleracion(r,a,m);
-    velocidad(r,v,a,m,h);
+    velocidad(r,v,w,a,m,h);
     return;
 }
 
@@ -199,15 +199,15 @@ void aceleracion(double r[][N],double a[][N],double m[])
 
 
 
-
-void velocidad(double r[][N],double v[][N], double a[][N],double m[],double h)
+//Calcula la velocidad 
+void velocidad(double r[][N],double v[][N],double w[][N], double a[][N],double m[],double h)
 {
     int i,j;
     for(i=0;i<2;i++)
     {
         for(j=0;j<N;j++)
         {
-            v[i][j]=v[i][j]+0.5*h*a[i][j];
+            v[i][j]=w[i][j]+0.5*h*a[i][j];
         }
     }
 }

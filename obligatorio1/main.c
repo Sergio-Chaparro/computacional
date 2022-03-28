@@ -16,7 +16,7 @@
 void DatosIniciales(double r[][N],double v[][N],double m[],double t);
 void reescalar(double r[][N],double v[][N],double m[],double t);
 void desescalar(double r[][N],double v[][N],double m[],double t);
-void Escribedatos(double r[][N],double v[][N],double t,FILE *f2,int reduccion,int iteraciones);
+void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones);
 
 //Funciones que usaremos dentro del algoritmod e verlet, junto con este
 void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[], double h);
@@ -34,7 +34,7 @@ double momentoangulartotal(double r[][N],double v[][N], double a[][N],double m[]
 int main(void)
 {
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
-    double h,tmax,momentoang;
+    double h,tmax;
     h=0.001;
     tmax=1000;
 
@@ -48,7 +48,7 @@ int main(void)
     double a[2][N],v[2][N],r[2][N], raux[2][N], w[2][N],m[N],t;
 
     //Declaro el fichero que usaremos para guardar los resultados
-    FILE *resultados,*momento;
+    FILE *resultados,*momento,*posiciones;
 
     //Inicializo todos los vectores
     DatosIniciales(r,v,m,t);    
@@ -62,6 +62,7 @@ int main(void)
     //Abrimos el fichero para escribir los datos
     resultados=fopen("resultados.txt","w");
     momento=fopen("momento.txt","w");
+    posiciones=fopen("posiciones.txt","w");
     //Obtengo las aceleraciones iniciales
     aceleracion(r,a,m);
     
@@ -70,18 +71,17 @@ int main(void)
     while(t<tmax)
     {
         Algoritmo(r,v,a,w,m,h);
-        Escribedatos(r,v,t,resultados,reduccion,iteraciones);
+        Escribedatos(r,v,a,m,t,resultados,momento,posiciones,reduccion,iteraciones);
         //Guardo el momento angular total del sistema 
         //para posterior comprobacin
-        momentoang=momentoangulartotal(r,v,a,m);
-        fprintf(momento,"%lf\t%lf\t\n",t,momentoang);
-        //aumento t
+        
         t=t+h;
         iteraciones++;
     }
 
     fclose(resultados);
     fclose(momento);
+    fclose(posiciones);
     
     
     return 0;
@@ -106,18 +106,27 @@ void DatosIniciales(double r[][N],double v[][N],double m[],double t)
     return;
 }
 
-//Funcion que escribe datos en un fichero ya abierto 
-void Escribedatos(double r[][N],double v[][N],double t,FILE *f2,int reduccion,int iteraciones)
+//Funcion que escribe datos en ficheros ya abiertos
+//f1 es para las posiciones de todos los cuerpos,
+//f2 es para el momento angular total del sistema
+// y f3 es para representar el resto de variables 
+void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones)
 {
     int i;
+    
     if(iteraciones%reduccion==0)
     {
+        fprintf(f3,"%lf\t",t);
         for(i=0;i<N;i++)
         {   
-            fprintf(f2,"%lf,\t%lf\t\n",r[0][i],r[1][i]);        
+            fprintf(f1,"%lf,\t%lf\t\n",r[0][i],r[1][i]);
+            fprintf(f3,"%lf,\t%lf\t",r[0][i],r[1][i]); 
+
         }
-        fprintf(f2,"\n");
-        //fprintf(f2,"lf",t);
+        fprintf(f1,"\n");
+        fprintf(f3,"\n");
+        fprintf(f2,"%lf\t%lf\t\n",t,momentoangulartotal(r,v,a,m));
+       
     }
     return;
 }

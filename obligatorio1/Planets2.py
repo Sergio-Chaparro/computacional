@@ -48,13 +48,13 @@ import numpy as np
 # Parámetros
 # ========================================
 file_in = "resultados.txt" # Nombre del fichero de datos
-file_out = "sistemasolar" # Nombre del fichero de salida (sin extensión)
+file_out = "sistemasolar2" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -35
-x_max = 35
-y_min = -35 
-y_max = 35
+x_min = -5
+x_max = 5
+y_min = -5 
+y_max = 5
 
 interval = 50 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
@@ -66,7 +66,7 @@ dpi = 150 # Calidad del vídeo de salida (dots per inch)
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-planet_radius = [0.5, 0.15, 0.25, 0.3, 0.25, 1, 0.8, 0.7, 0.8] 
+planet_radius = [0.5, 0.15, 0.25, 0.3, 0.25] 
 #planet_radius = [0.5, 0.7, 1.1]
 
 

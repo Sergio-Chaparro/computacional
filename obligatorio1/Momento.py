@@ -14,3 +14,5 @@ y = data[:,1]
 # Creamos una figura y hacemos nuestro primer plot
 plt.figure()
 plt.plot(x,y)
+
+plt.savefig('Momento.png', dpi=300)

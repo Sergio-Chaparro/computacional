@@ -21,4 +21,4 @@ y5 = data[:,10]
 
 # Creamos una figura y hacemos nuestro primer plot
 plt.figure()
-plt.plot(x,y)
+plt.plot()

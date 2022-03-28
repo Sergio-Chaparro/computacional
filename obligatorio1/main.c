@@ -15,8 +15,11 @@
 //Funciones que usaremos para obtener y transformar los datod
 void DatosIniciales(double r[][N],double v[][N],double m[],double t);
 void reescalar(double r[][N],double v[][N],double m[],double t);
-void desescalar(double r[][N],double v[][N],double m[],double t);
 void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones);
+
+//Funciones que usare para obtener periodos
+void Iguala(double r1[][N],double r2[][N]);
+void Compruebaperiodo(double r[][N],double raux[][N],int i,FILE *f,double t,double taux[]);
 
 //Funciones que usaremos dentro del algoritmod e verlet, junto con este
 void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[], double h);
@@ -42,13 +45,15 @@ int main(void)
     //la cyal dividire el numero de resultados obtenidos
     int reduccion=200;
     int iteraciones=0;
+    int Planeta,Vueltas[N];
+    double taux[N];
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
     double a[2][N],v[2][N],r[2][N], raux[2][N], w[2][N],m[N],t;
 
     //Declaro el fichero que usaremos para guardar los resultados
-    FILE *resultados,*momento,*posiciones;
+    FILE *resultados,*momento,*resultados2,*Periodos;
 
     //Inicializo todos los vectores
     DatosIniciales(r,v,m,t);    
@@ -62,18 +67,29 @@ int main(void)
     //Abrimos el fichero para escribir los datos
     resultados=fopen("resultados.txt","w");
     momento=fopen("momento.txt","w");
-    posiciones=fopen("posiciones.txt","w");
+    resultados2=fopen("resultados2.txt","w");
+    Periodos=fopen("Periodos.txt","w");
     //Obtengo las aceleraciones iniciales
     aceleracion(r,a,m);
-    
+    //Inicio taux como t
+    for(Planeta=0;Planeta<N;Planeta++)
+    {
+        taux[Planeta]=t;
+        Vueltas[Planeta]=0;
 
     //repito el ciclo hasta que nos interese
     while(t<tmax)
     {
+        //raux guarda las posiciones inmediatamente anteriores
+        Iguala(raux,r);
         Algoritmo(r,v,a,w,m,h);
-        Escribedatos(r,v,a,m,t,resultados,momento,posiciones,reduccion,iteraciones);
-        //Guardo el momento angular total del sistema 
-        //para posterior comprobacin
+        Escribedatos(r,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones);
+        //Escribo los el momento en el que cada planeta da cada vuelta
+        //para posterior comprobacion
+        for(Planeta=1;Planeta<N;Planeta++)
+        {
+            Compruebaperiodo(r,raux,Planeta,Periodos,t,taux);
+        }
         
         t=t+h;
         iteraciones++;
@@ -81,7 +97,8 @@ int main(void)
 
     fclose(resultados);
     fclose(momento);
-    fclose(posiciones);
+    fclose(resultados2);
+    fclose(Periodos);
     
     
     return 0;
@@ -116,16 +133,18 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
     
     if(iteraciones%reduccion==0)
     {
-        fprintf(f3,"%lf\t",t);
+        
         for(i=0;i<N;i++)
         {   
             fprintf(f1,"%lf,\t%lf\t\n",r[0][i],r[1][i]);
-            fprintf(f3,"%lf,\t%lf\t",r[0][i],r[1][i]); 
-
+            if(i<5)
+            {
+                fprintf(f3,"%lf,\t%lf,\t",r[0][i],r[1][i]); 
+            }
         }
         fprintf(f1,"\n");
         fprintf(f3,"\n");
-        fprintf(f2,"%lf\t%lf\t\n",t,momentoangulartotal(r,v,a,m));
+        fprintf(f2,"%lf %lf\n",t,momentoangulartotal(r,v,a,m));
        
     }
     return;
@@ -147,23 +166,36 @@ void reescalar(double r[][N],double v[][N],double m[],double t)
     }
     return;
 }
-//Funcion que devuelve las variables a la normalidad, en el vector raux
-void desescalar(double r[][N],double v[][N],double m[],double t)
+
+//Funcion que copia el contenido de r2 en r1
+
+void Iguala(double r1[][N],double r2[][N])
 {
     int i,j;
-    
-    for(i=0;i<N;i++)
+    for(i=0;i<2;i++)
     {
-        
-        for(j=0;j<2;j++)
+        for(j=0;j<N;j++)
         {
-            r[j][i]=r[j][i]*c;
+            r1[i][j]=r2[i][j];
         }
     }
-    return;
+
 }
 
 
+
+//Funcion que comprueba si el planeta se encuentra en el principio de 
+//una vuelta y en ese caso escribe el periodo en un fichero abierto
+void Escribeperiodo(double r[][N],double raux[][N],int i,FILE *f,double t,double taux[])
+{
+    double Periodo;
+    if((r[0][i]>0.)&&(raux[0][i]<0.))
+    {
+        Periodo=sqrt(c*c*c/(G*Ms))*(t-taux[i])/60/60/24;
+        fprintf(f,"Planeta %i:%lf\n",i,Periodo);
+        taux[i]=t;
+    }
+}
 
 
 //Funcion que realiza el algoritmo de verlet, necesita la aceleracion inicial ya calculada, 

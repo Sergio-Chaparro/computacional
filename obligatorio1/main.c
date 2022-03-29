@@ -18,8 +18,11 @@ void reescalar(double r[][N],double v[][N],double m[],double t);
 void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones);
 
 //Funciones que usare para obtener periodos
+void Inicializa(double r[], double valor);
 void Iguala(double r1[][N],double r2[][N]);
-void Compruebaperiodo(double r[][N],double raux[][N],int i,FILE *f,double t,double taux[]);
+void Escribeperiodo(FILE *f,int Vueltas[],double Periodo[]);
+void Revisaperiodo(double r[][N],double raux[][N],int Vueltas[],double t,double taux[]);
+void CalculaPeriodo(int Vueltas[],double taux[],double Periodo[]);
 
 //Funciones que usaremos dentro del algoritmod e verlet, junto con este
 void Algoritmo(double r[][N],double v[][N], double a[][N],double w[][N],double m[], double h);
@@ -39,14 +42,16 @@ int main(void)
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax;
     h=0.001;
-    tmax=1000;
+    tmax=2000;
 
     //Defino una variable reduccion, cantidad entre
-    //la cyal dividire el numero de resultados obtenidos
+    //la cual dividire el numero de resultados obtenidos
     int reduccion=200;
     int iteraciones=0;
+
+    //Declaro variables para calcular los periodos de rotacion;
     int Planeta,Vueltas[N];
-    double taux[N];
+    double taux[N],Periodo[N];
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
@@ -72,11 +77,12 @@ int main(void)
     //Obtengo las aceleraciones iniciales
     aceleracion(r,a,m);
     //Inicio taux como t
+    Inicializa(taux,t);
+    Inicializa(Periodo,0.);
     for(Planeta=0;Planeta<N;Planeta++)
     {
-        taux[Planeta]=t;
         Vueltas[Planeta]=0;
-
+    }
     //repito el ciclo hasta que nos interese
     while(t<tmax)
     {
@@ -84,16 +90,15 @@ int main(void)
         Iguala(raux,r);
         Algoritmo(r,v,a,w,m,h);
         Escribedatos(r,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones);
-        //Escribo los el momento en el que cada planeta da cada vuelta
-        //para posterior comprobacion
-        for(Planeta=1;Planeta<N;Planeta++)
-        {
-            Compruebaperiodo(r,raux,Planeta,Periodos,t,taux);
-        }
-        
+        //Compruebo si es el principio de un avuelta de un planeta
+        Revisaperiodo(r,raux,Vueltas,t,taux);              
         t=t+h;
         iteraciones++;
     }
+
+    //Escribo los resultado sdel periodo
+    CalculaPeriodo(Vueltas,taux,Periodo);
+    Escribeperiodo(Periodos,Vueltas,Periodo);
 
     fclose(resultados);
     fclose(momento);
@@ -144,7 +149,7 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
         }
         fprintf(f1,"\n");
         fprintf(f3,"\n");
-        fprintf(f2,"%lf %lf\n",t,momentoangulartotal(r,v,a,m));
+        fprintf(f2,"%lf %E\n",t,momentoangulartotal(r,v,a,m));
        
     }
     return;
@@ -167,6 +172,19 @@ void reescalar(double r[][N],double v[][N],double m[],double t)
     return;
 }
 
+//Funcion que inicializa un vector a un valor concreto
+//debe haberse definido el tamaño del vector como variable N
+void Inicializa(double r[], double valor)
+{
+    int i;
+    for(i=0;i<N;i++)
+    {
+        r[i]=valor;
+    }
+    return;
+}
+
+
 //Funcion que copia el contenido de r2 en r1
 
 void Iguala(double r1[][N],double r2[][N])
@@ -185,18 +203,51 @@ void Iguala(double r1[][N],double r2[][N])
 
 
 //Funcion que comprueba si el planeta se encuentra en el principio de 
-//una vuelta y en ese caso escribe el periodo en un fichero abierto
-void Escribeperiodo(double r[][N],double raux[][N],int i,FILE *f,double t,double taux[])
+//una vuelta y en ese caso guarda  el tiempo y las vueltas que lleva
+void Revisaperiodo(double r[][N],double raux[][N],int Vueltas[],double t,double taux[])
 {
-    double Periodo;
-    if((r[0][i]>0.)&&(raux[0][i]<0.))
+    
+    int i;
+    for(i=1;i<N;i++)
     {
-        Periodo=sqrt(c*c*c/(G*Ms))*(t-taux[i])/60/60/24;
-        fprintf(f,"Planeta %i:%lf\n",i,Periodo);
-        taux[i]=t;
+        if((r[1][i]>0.)&&(raux[1][i]<0.))
+        {
+            taux[i]=t;
+            Vueltas[i]++;
+        }
     }
 }
 
+//Funcion que calcula el periodo de los planetas, apartir de las 
+//vueltas que han dado y el tiempo que han tardado
+void CalculaPeriodo(int Vueltas[],double taux[],double Periodo[])
+{
+    int i;
+    for(i=1;i<N;i++)
+    {
+        if(Vueltas[i]!=0)
+        {
+            Periodo[i]=taux[i]/Vueltas[i]*sqrt((c*c*c/(G*Ms)))/24/60/60;
+        }
+        else Periodo[i]=0;
+    }
+    return;
+}
+
+
+//Funcion que escribe las vueltas y los periodos de los 
+//Planetas, sin contar el Sol
+
+void Escribeperiodo(FILE *f,int Vueltas[],double Periodo[])
+{
+    int i;
+    for(i=1;i<N;i++)
+    {
+        fprintf(f,"Planeta %i ha dado %i vueltas, con un periodo de :%lf dias.\n",i,Vueltas[i],Periodo[i]);
+    
+    }
+    return;
+}
 
 //Funcion que realiza el algoritmo de verlet, necesita la aceleracion inicial ya calculada, 
 //junto con la posicion y la velocidad ya dadas

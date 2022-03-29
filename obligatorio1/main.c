@@ -144,7 +144,7 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
             fprintf(f1,"%lf,\t%lf\t\n",r[0][i],r[1][i]);
             if(i<5)
             {
-                fprintf(f3,"%lf,\t%lf,\t",r[0][i],r[1][i]); 
+                fprintf(f3,"%lf,\t%lf\t\n",r[0][i],r[1][i]); 
             }
         }
         fprintf(f1,"\n");

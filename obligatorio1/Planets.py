@@ -58,7 +58,7 @@ y_max = 35
 
 interval = 50 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
-trail_width = 1 # Ancho de la estela
+trail_width = 0.5 # Ancho de la estela
 save_to_file = True # False: muestra la animación por pantalla,
                      # True: la guarda en un fichero
 dpi = 150 # Calidad del vídeo de salida (dots per inch)
@@ -66,9 +66,9 @@ dpi = 150 # Calidad del vídeo de salida (dots per inch)
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-planet_radius = [0.5, 0.15, 0.25, 0.3, 0.25, 1, 0.8, 0.7, 0.8] 
+planet_radius = [0.2, 0.03, 0.06, 0.07, 0.05, 0,15, 0.12, 0.10, 0.11] 
 #planet_radius = [0.5, 0.7, 1.1]
-
+planet_color=["#ff7605","#5c4227","#8c4c0b","#3083ba","#991d08","#a8704d","#a37b62","#244a96","#041e52"]
 
 # Lectura del fichero de datos
 # ========================================
@@ -131,10 +131,10 @@ else:
 # al punto en una lista
 planet_points = list()
 planet_trails = list()
-for planet_pos, radius in zip(frames_data[0], planet_radius):
+for planet_pos, radius, pc  in zip(frames_data[0], planet_radius, planet_color):
     x, y = planet_pos
     #planet_point, = ax.plot(x, y, "o", markersize=10)
-    planet_point = Circle((x, y), radius)
+    planet_point = Circle((x, y), radius,color=pc)
     ax.add_artist(planet_point)
     planet_points.append(planet_point)
 

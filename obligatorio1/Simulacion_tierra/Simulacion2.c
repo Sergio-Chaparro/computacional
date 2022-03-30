@@ -15,7 +15,7 @@
 //Funciones que usaremos para obtener y transformar los datod
 void DatosIniciales(double r[][N],double v[][N],double m[],double t);
 void reescalar(double r[][N],double v[][N],double m[],double t);
-void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2);
+void Escribedatos(double r[][N],double rt[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2);
 void Tierracentro(double r[][N],double rt[][N]);
 
 //Funciones que usare para obtener periodos
@@ -95,7 +95,7 @@ int main(void)
         Iguala(raux,r);
         Algoritmo(r,v,a,w,m,h);
         Tierracentro(r,rt);
-        Escribedatos(rt,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones,reduccion2,tmax2);
+        Escribedatos(r,rt,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones,reduccion2,tmax2);
         //Compruebo si es el principio de un avuelta de un planeta
         Revisaperiodo(r,raux,Vueltas,t,taux);              
         t=t+h;
@@ -138,7 +138,7 @@ void DatosIniciales(double r[][N],double v[][N],double m[],double t)
 //f1 es para las posiciones de todos los cuerpos,
 //f2 es para el momento angular total del sistema
 // y f3 es para representar el resto de variables 
-void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2)
+void Escribedatos(double r[][N],double rt[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2)
 {
     int i;
     
@@ -147,7 +147,7 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
         
         for(i=0;i<N;i++)
         {   
-            fprintf(f1,"%lf,\t%lf\t\n",r[0][i],r[1][i]);
+            fprintf(f1,"%lf,\t%lf\t\n",rt[0][i],rt[1][i]);
             
         }
         fprintf(f1,"\n");
@@ -161,7 +161,7 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
         {   
             if(i<5)
             {
-                fprintf(f3,"%lf,\t%lf\t\n",r[0][i],r[1][i]); 
+                fprintf(f3,"%lf,\t%lf\t\n",rt[0][i],rt[1][i]); 
             }
         }
         fprintf(f3,"\n");        

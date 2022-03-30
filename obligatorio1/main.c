@@ -15,7 +15,7 @@
 //Funciones que usaremos para obtener y transformar los datod
 void DatosIniciales(double r[][N],double v[][N],double m[],double t);
 void reescalar(double r[][N],double v[][N],double m[],double t);
-void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones);
+void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2);
 
 //Funciones que usare para obtener periodos
 void Inicializa(double r[], double valor);
@@ -40,13 +40,15 @@ double momentoangulartotal(double r[][N],double v[][N], double a[][N],double m[]
 int main(void)
 {
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
-    double h,tmax;
+    double h,tmax,tmax2;
     h=0.001;
     tmax=2000;
+    tmax2=tmax/10;
 
     //Defino una variable reduccion, cantidad entre
     //la cual dividire el numero de resultados obtenidos
     int reduccion=200;
+    int reduccion2=20;
     int iteraciones=0;
 
     //Declaro variables para calcular los periodos de rotacion;
@@ -89,7 +91,7 @@ int main(void)
         //raux guarda las posiciones inmediatamente anteriores
         Iguala(raux,r);
         Algoritmo(r,v,a,w,m,h);
-        Escribedatos(r,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones);
+        Escribedatos(r,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones,reduccion2,tmax2);
         //Compruebo si es el principio de un avuelta de un planeta
         Revisaperiodo(r,raux,Vueltas,t,taux);              
         t=t+h;
@@ -132,7 +134,7 @@ void DatosIniciales(double r[][N],double v[][N],double m[],double t)
 //f1 es para las posiciones de todos los cuerpos,
 //f2 es para el momento angular total del sistema
 // y f3 es para representar el resto de variables 
-void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones)
+void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2)
 {
     int i;
     
@@ -142,15 +144,23 @@ void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,
         for(i=0;i<N;i++)
         {   
             fprintf(f1,"%lf,\t%lf\t\n",r[0][i],r[1][i]);
+            
+        }
+        fprintf(f1,"\n");
+        fprintf(f2,"%lf %E\n",t,momentoangulartotal(r,v,a,m));
+       
+    }
+    if((iteraciones%reduccion2==0)&&(t<tmax2))
+    {
+        
+        for(i=0;i<N;i++)
+        {   
             if(i<5)
             {
                 fprintf(f3,"%lf,\t%lf\t\n",r[0][i],r[1][i]); 
             }
         }
-        fprintf(f1,"\n");
-        fprintf(f3,"\n");
-        fprintf(f2,"%lf %E\n",t,momentoangulartotal(r,v,a,m));
-       
+        fprintf(f3,"\n");        
     }
     return;
 }

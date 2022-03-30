@@ -16,7 +16,7 @@
 void DatosIniciales(double r[][N],double v[][N],double m[],double t);
 void reescalar(double r[][N],double v[][N],double m[],double t);
 void Escribedatos(double r[][N],double v[][N],double a[][N],double m[],double t,FILE *f1,FILE *f2,FILE *f3,int reduccion,int iteraciones, int reduccion2, double tmax2);
-void Tierracentro(double r[][N],double v[][N]);
+void Tierracentro(double r[][N],double rt[][N]);
 
 //Funciones que usare para obtener periodos
 void Inicializa(double r[], double valor);
@@ -58,7 +58,7 @@ int main(void)
 
     //Declaramos la posicion, la velocidad y la aceleracion
     //que vamos a utilizar para los N planetas
-    double a[2][N],v[2][N],r[2][N], raux[2][N], w[2][N],m[N],t;
+    double a[2][N],v[2][N],r[2][N],rt[2][N], raux[2][N], w[2][N],m[N],t;
 
     //Declaro el fichero que usaremos para guardar los resultados
     FILE *resultados,*momento,*resultados2,*Periodos;
@@ -66,7 +66,7 @@ int main(void)
     //Inicializo todos los vectores
     DatosIniciales(r,v,m,t); 
     //Pongo la tierra en el centro
-    Tierracentro(r,v);   
+    Tierracentro(r,rt);   
     //Reescalamos los datod para poder tratarlos con mas facilidad
     //Usamos masas solares y la distancia tierra-sol
     reescalar(r,v,m,t);//A partir de aqui estaran en esas unidades
@@ -94,7 +94,8 @@ int main(void)
         //raux guarda las posiciones inmediatamente anteriores
         Iguala(raux,r);
         Algoritmo(r,v,a,w,m,h);
-        Escribedatos(r,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones,reduccion2,tmax2);
+        Tierracentro(r,rt);
+        Escribedatos(rt,v,a,m,t,resultados,momento,resultados2,reduccion,iteraciones,reduccion2,tmax2);
         //Compruebo si es el principio de un avuelta de un planeta
         Revisaperiodo(r,raux,Vueltas,t,taux);              
         t=t+h;
@@ -187,20 +188,16 @@ void reescalar(double r[][N],double v[][N],double m[],double t)
 
 
 //Funcion que coloca la tierra en el centro
-void Tierracentro(double r[][N],double v[][N])
+void Tierracentro(double r[][N],double rt[][N])
 {
     int i,j;
-    double pos[2],vel[2];
-    pos[0]=r[0][3];
-    pos[1]=r[1][3];
-    vel[0]=v[0][3];
-    vel[1]=v[1][3];
+    
     for(i=0;i<2;i++)
     {
         for(j=0;j<N;j++)
         {
-            r[i][j]=r[i][j]-pos[i];
-            //v[i][j]=v[i][j]-vel[i];
+            rt[i][j]=r[i][j]-r[i][3];
+            
         }
     }
     return;

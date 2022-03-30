@@ -200,7 +200,7 @@ void Tierracentro(double r[][N],double v[][N])
         for(j=0;j<N;j++)
         {
             r[i][j]=r[i][j]-pos[i];
-            v[i][j]=v[i][j]-vel[i];
+            //v[i][j]=v[i][j]-vel[i];
         }
     }
     return;

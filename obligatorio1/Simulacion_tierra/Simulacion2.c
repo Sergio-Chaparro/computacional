@@ -43,13 +43,13 @@ int main(void)
     //Declaro el tiempo y el paso que vamos a utilizar y las inicializo
     double h,tmax,tmax2;
     h=0.001;
-    tmax=2000;
+    tmax=70;
     tmax2=tmax/10;
 
     //Defino una variable reduccion, cantidad entre
     //la cual dividire el numero de resultados obtenidos
-    int reduccion=200;
-    int reduccion2=20;
+    int reduccion=70;
+    int reduccion2=7;
     int iteraciones=0;
 
     //Declaro variables para calcular los periodos de rotacion;
@@ -190,14 +190,20 @@ void reescalar(double r[][N],double v[][N],double m[],double t)
 void Tierracentro(double r[][N],double v[][N])
 {
     int i,j;
+    double pos[2],vel[2];
+    pos[0]=r[0][3];
+    pos[1]=r[1][3];
+    vel[0]=v[0][3];
+    vel[1]=v[1][3];
     for(i=0;i<2;i++)
     {
         for(j=0;j<N;j++)
         {
-            r[i][j]=r[i][j]-r[i][3];
-            v[i][j]=v[i][j]-v[i][3];
+            r[i][j]=r[i][j]-pos[i];
+            v[i][j]=v[i][j]-vel[i];
         }
     }
+    return;
 }
 
 

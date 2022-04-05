@@ -1,11 +1,13 @@
 // Programa para la simulación de un aterial mediante
 //el metodo de ising, usando la generacion de numeros aleatorios
 
-#include <gsl_rng.h>
+#include "gsl_rng.h"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#define N 16
+
+
+#define N 128
 //Puntero para generar números aleatorios
 gsl_rng *tau;
 
@@ -35,16 +37,17 @@ FILE *resultados;
 
 //Obtengo unos valores iniciales para la red
 InicializaRed(red);
+
+
+//Inicializo T a un valor en kelvin y hago la simulacion
+T=0.5;
+
 resultados=fopen("resultados.txt","w");
-
-
 for(iteracion=0;iteracion<N*N;iteracion++)
 {
     Algoritmo(red,T);
     EscribeResultados(red,resultados);
 }
-
-
 fclose(resultados);
 
 }
@@ -76,11 +79,12 @@ void Algoritmo(int red[][N],double T)
 {
     extern gsl_rng *tau;
     int i,j;
-    double p,E;
-
-    
-
-
+    double e;
+    i=gsl_rng_uniform_int(tau,N-1);
+    j=gsl_rng_uniform_int(tau,N-1);
+    e=gsl_rng_uniform(tau);
+    if(e<EvaluaP(red,i,j,T))    red[i][j]=-red[i][j];
+    return;
 }
 
 
@@ -91,11 +95,16 @@ void EscribeResultados(int red[][N],FILE *f)
     {
         for(j=0;j<N;j++)
         {
-            fprintf(f, "%i,\t",red[i][j]);
-            fprintf(f,"\n");
+            if(j!=0) 
+            {
+                fprintf(f,",");
+            }
+            fprintf(f, "%i",red[i][j]);            
         }
         fprintf(f,"\n");
     }
+    fprintf(f,"\n");
+    return;
 }
 
 

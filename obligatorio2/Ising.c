@@ -1,7 +1,7 @@
 // Programa para la simulación de un aterial mediante
 //el metodo de ising, usando la generacion de numeros aleatorios
 
-#include "gsl_rng.h"
+#include <gsl_rng.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -11,9 +11,10 @@ gsl_rng *tau;
 
 
 
-void InicializaRed(double red[][N]);
-void Algoritmo(double red[][],double T);
-void EscribeResultados(double red[][N],File *f);
+void InicializaRed(int red[][N]);
+void Algoritmo(int red[][N],double T);
+void EscribeResultados(int red[][N],FILE *f);
+double EvaluaP(int red[][N],int i,int j,double T);
 
 int main(void)
 {
@@ -52,7 +53,7 @@ fclose(resultados);
 
 //Función que inicializa red con valores aleatorios
 //Usa el puntero tau, declarado de forma externa para generar los numeros
-void InicializaRed(double red[][N])
+void InicializaRed(int red[][N])
 {
     extern gsl_rng *tau;
     double x;
@@ -71,17 +72,19 @@ void InicializaRed(double red[][N])
 }
 
 
-void Algoritmo(double red[][],double T)
+void Algoritmo(int red[][N],double T)
 {
     extern gsl_rng *tau;
     int i,j;
     double p,E;
 
+    
+
 
 }
 
 
-void EscribeResultados(double red[][N],File *f)
+void EscribeResultados(int red[][N],FILE *f)
 {
     int i,j;
     for(i=0;i<N;i++)
@@ -93,4 +96,16 @@ void EscribeResultados(double red[][N],File *f)
         }
         fprintf(f,"\n");
     }
+}
+
+
+//Funcion que calcula el valor de p para i,j
+//con P=min(1,e**(-E/T)))
+//con E=2s(i,j)(s(i+1,j)+s(i-1,j)+s(i,j+1)+s(i,j-1))
+double EvaluaP(int red[][N],int i,int j,double T)
+{
+    int E;
+    E=2*red[i][j]*(red[(i+1)%N][j]+red[(i-1)%N][j]+red[i][(j+1)%N]+red[i][(j-1)%N]);
+    if(exp(-E/T)<1) return E;
+    else return 1;
 }

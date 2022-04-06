@@ -8,6 +8,7 @@
 
 
 #define N 128
+
 //Puntero para generar números aleatorios
 gsl_rng *tau;
 
@@ -17,6 +18,7 @@ void InicializaRed(int red[][N]);
 void Algoritmo(int red[][N],double T);
 void EscribeResultados(int red[][N],FILE *f);
 double EvaluaP(int red[][N],int i,int j,double T);
+int condp(int i);
 
 int main(void)
 {
@@ -32,24 +34,35 @@ gsl_rng_set(tau,semilla);
 //para el modelo
 double T;
 int red[N][N];
-int iteracion;
+int iteracion, pasosMC,paso,fpiter;
 FILE *resultados;
 
 //Obtengo unos valores iniciales para la red
 InicializaRed(red);
 
 
+//Variable que uso para representar un fotograma cada x iteraciones
+fpiter=2;
+
 //Inicializo T a un valor en kelvin y hago la simulacion
 T=0.5;
+pasosMC=5000;
 
 resultados=fopen("resultados.txt","w");
-for(iteracion=0;iteracion<N*N;iteracion++)
+for(paso=0;paso<pasosMC;paso++)
 {
-    Algoritmo(red,T);
-    EscribeResultados(red,resultados);
+    for(iteracion=0;iteracion<N*N;iteracion++)
+    {
+        Algoritmo(red,T);        
+    }    
+    if((paso%fpiter)==0)
+    {
+        EscribeResultados(red,resultados);
+    }        
 }
 fclose(resultados);
-
+   
+return 0;
 }
 
 
@@ -80,8 +93,8 @@ void Algoritmo(int red[][N],double T)
     extern gsl_rng *tau;
     int i,j;
     double e;
-    i=gsl_rng_uniform_int(tau,N-1);
-    j=gsl_rng_uniform_int(tau,N-1);
+    i=gsl_rng_uniform_int(tau,N);
+    j=gsl_rng_uniform_int(tau,N);
     e=gsl_rng_uniform(tau);
     if(e<EvaluaP(red,i,j,T))    red[i][j]=-red[i][j];
     return;
@@ -114,7 +127,24 @@ void EscribeResultados(int red[][N],FILE *f)
 double EvaluaP(int red[][N],int i,int j,double T)
 {
     int E;
-    E=2*red[i][j]*(red[(i+1)%N][j]+red[(i-1)%N][j]+red[i][(j+1)%N]+red[i][(j-1)%N]);
-    if(exp(-E/T)<1) return E;
+    E=2*red[i][j]*(red[condp(i+1)][j]+red[condp(i-1)][j]+red[i][condp(j+1)]+red[i][condp(j-1)]);
+    if(exp(-E/T)<1) return exp(-E/T);
     else return 1;
+}
+
+
+//funcion para aplicar las condiciones de contorno periodicas
+//se ha declarado el valor maximo como variable global
+int condp(int i)
+{
+    
+    if(i==N) 
+    {
+        return 0;
+    }
+    else if (i==-1) 
+    {
+        return (N-1);
+    }
+    else return i;
 }

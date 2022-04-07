@@ -240,7 +240,7 @@ double CalcEnergia(int red[][N])
             resultado=resultado+red[i][j]*(red[condp(i+1)][j]+red[condp(i-1)][j]+red[i][condp(j+1)]+red[i][condp(j-1)]);
         }
     }
-    return -1/2*resultado;
+    return -resultado/2;
 }
 
 //Funcion que calcula la suma de energia al cuadrado, sin promediar
@@ -256,7 +256,7 @@ double CalcEnergiaCua(int red[][N])
             resultado=resultado+pow((red[i][j]*(red[condp(i+1)][j]+red[condp(i-1)][j]+red[i][condp(j+1)]+red[i][condp(j-1)])),2);
         }
     }
-    return 1/4*resultado;
+    return resultado/4;
 }
 
 //Funcion que calcula el calor especifico a partir del promedio de 

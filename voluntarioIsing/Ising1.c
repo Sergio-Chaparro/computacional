@@ -83,9 +83,9 @@ for(paso=0;paso<pasosMC;paso++)
     }
     if((paso%niter1)==0)
     {        
-        Magnetizacion=CalcMagnetizacion(red);
-        Energia=CalcEnergia(red);
-        EnergiaCua=CalcEnergiaCua(red);
+        Magnetizacion=Magnetizacion+CalcMagnetizacion(red);
+        Energia=Energia+CalcEnergia(red);
+        EnergiaCua=EnergiaCua+CalcEnergiaCua(red);
         ProductoSpin(red,PromedioSpin);
     }        
 }

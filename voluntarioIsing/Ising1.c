@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 
-#define N 16
+#define N 128
 
 //Puntero para generar números aleatorios
 gsl_rng *tau;
@@ -197,10 +197,10 @@ int condp(int i)
 //Ya deben ser los resultados finales
 void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion)
 {
-    printf("La magnetización promedio es: %lf\n",Magnetizacion);
-    printf("La energia media es: %lf\n",Energia);
-    printf("El calor especifico es: %lf\n",CalorEsp);
-    printf("La función de correlación: %lf\n",FuncCorrelacion);
+    printf("La magnetización promedio es: %.16lf\n",Magnetizacion);
+    printf("La energia media es: %.16lf\n",Energia);
+    printf("El calor especifico es: %.16lf\n",CalorEsp);
+    printf("La función de correlación: %.16lf\n",FuncCorrelacion);
     return;
 }
 

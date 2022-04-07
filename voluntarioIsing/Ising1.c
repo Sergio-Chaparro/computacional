@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 
-#define N 64
+#define N 16
 
 //Puntero para generar números aleatorios
 gsl_rng *tau;
@@ -65,7 +65,7 @@ niter1=100;
 niter2=1000;
 //Inicializo T a un valor en kelvin y hago la simulacion
 T=1.5;
-pasosMC=10E4;
+pasosMC=10E6;
 medidas=pasosMC/niter1;
 
 
@@ -202,10 +202,10 @@ int condp(int i)
 //Ya deben ser los resultados finales
 void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion)
 {
-    printf("La magnetización promedio es: %.16E\n",Magnetizacion);
-    printf("La energia media es: %.16E\n",Energia);
-    printf("El calor especifico es: %.16E\n",CalorEsp);
-    printf("La función de correlación: %.16E\n",FuncCorrelacion);
+    printf("La magnetización promedio es: %lf\n",Magnetizacion);
+    printf("La energia media es: %lf\n",Energia);
+    printf("El calor especifico es: %lf\n",CalorEsp);
+    printf("La función de correlación: %lf\n",FuncCorrelacion);
     return;
 }
 

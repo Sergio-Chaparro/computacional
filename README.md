@@ -1,2 +1,2 @@
 # computacional
-Repositorio para subur los trabajos de la asignatura.
+Repositorio para subir los trabajos de la asignatura.

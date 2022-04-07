@@ -50,7 +50,7 @@ gsl_rng_set(tau,semilla);
 double T;
 int red[N][N];
 double PromedioSpin[N][N];
-int iteracion, pasosMC,paso,fpiter,medidas;
+int iteracion, pasosMC,paso,niter1,niter2,medidas;
 FILE *resultados;
 bool aleatoriedad=false; //True para aleatorio, false para uniforme
 //Declaro las magnitudes que promediare
@@ -59,12 +59,14 @@ double Magnetizacion=0, Energia=0, EnergiaCua=0, CalorEsp=0, FuncCorrelacion=0;
 //Obtengo unos valores iniciales para la red
 InicializaRed(red,aleatoriedad);
 Inicializa(PromedioSpin,0.);
-//Variable que uso para representar un fotograma cada x iteraciones
-fpiter=100;
+//Variable que uso para representar un fotograma cada x iteraciones, 1 para medidas y otro para 
+//resultados
+niter1=100;
+niter2=1000;
 //Inicializo T a un valor en kelvin y hago la simulacion
 T=1.5;
-pasosMC=10E6;
-medidas=pasosMC/fpiter;
+pasosMC=10E4;
+medidas=pasosMC/niter1;
 
 
 
@@ -75,9 +77,12 @@ for(paso=0;paso<pasosMC;paso++)
     {
         Algoritmo(red,T);        
     }    
-    if((paso%fpiter)==0)
+    if((paso%niter2)==0)
     {
         EscribeResultados(red,resultados);
+    }
+    if((paso%niter1)==0)
+    {        
         Magnetizacion=CalcMagnetizacion(red);
         Energia=CalcEnergia(red);
         EnergiaCua=CalcEnergiaCua(red);

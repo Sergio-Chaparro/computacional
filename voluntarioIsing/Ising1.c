@@ -62,7 +62,7 @@ Inicializa(PromedioSpin,0.);
 //Variable que uso para representar un fotograma cada x iteraciones, 1 para medidas y otro para 
 //resultados
 niter1=100;
-niter2=1000;
+niter2=500;
 //Inicializo T a un valor en kelvin y hago la simulacion
 T=1.5;
 pasosMC=10E6;

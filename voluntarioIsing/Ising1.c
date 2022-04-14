@@ -23,7 +23,7 @@ double EvaluaP(int red[][N],int i,int j,double T);
 int condp(int i);
 
 //FUnciones para calcular magnitudes y escribirlas por pantalla
-void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu, double eta);
+void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu, double eta,double T);
 double CalcMagnetizacion(int red[][N]);  
 double CalcEnergia(int red[][N]); //Falta dividir al escribir 2N²
 double CalcEnergiaCua(int red[][N]);
@@ -118,7 +118,7 @@ Tcritica=2/(log(1+sqrt(2)));
 t=abs(T-Tcritica)/Tcritica;
 
 //Escribo todas estas magnitudes como resultado
-EscribeMagnitudes(Magnetizacion,Energia,CalorEsp,FuncCorrelacion,t,alfa,beta,nu,eta);
+EscribeMagnitudes(Magnetizacion,Energia,CalorEsp,FuncCorrelacion,t,alfa,beta,nu,eta,T);
 
 return 0;
 }
@@ -217,10 +217,11 @@ int condp(int i)
 
 //Funcion que escribe las magnitudes finales por pantalla
 //Ya deben ser los resultados finales
-void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu,double eta)
+void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu,double eta,double T)
 {
     printf("\n\n###########################################\n");
     printf("###########################################\n");
+    printf("TEMPERATURA: %lf      N: %lf   \n",T,N);
      
     printf("VARIABLES EXPERIMENTALES:\n");
     printf("La magnetización experimental promedio es: %lf\n",Magnetizacion);

@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 
-#define N 64
+#define N 16
 
 //Puntero para generar números aleatorios
 gsl_rng *tau;
@@ -23,7 +23,7 @@ double EvaluaP(int red[][N],int i,int j,double T);
 int condp(int i);
 
 //FUnciones para calcular magnitudes y escribirlas por pantalla
-void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion);
+void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu, double eta);
 double CalcMagnetizacion(int red[][N]);  
 double CalcEnergia(int red[][N]); //Falta dividir al escribir 2N²
 double CalcEnergiaCua(int red[][N]);
@@ -33,6 +33,16 @@ double CalcFuncCorrelacion(double PromedioSpin[][N],int medidas);
 double PromediarMedidas(double Magnitud,int Medidas);
 void Inicializa(double r[][N], double valor);
 double EnergiaMedia(double Energia);
+
+//Funciones para calcular las magnitudes teóricas 
+//Y los exponentes experimentales
+double betaExp(double mag,double t);
+double alfaExp(double calor,double t);
+double nuExp(double correlacion,double t);
+double CalcMagteorica(double beta,double t);
+double CalcCalorespteorico(double alfa,double t);
+double CalcCorrelacionteorica(double nu,double t);
+
 
 
 int main(void)
@@ -47,7 +57,8 @@ gsl_rng_set(tau,semilla);
 
 //Declaro las variables que me harán falta 
 //para el modelo T[1.5 y 3.5]
-double T;
+//t es la t reducida t=|Tc-T|/Tc
+double T,t,Tcritica;
 int red[N][N];
 double PromedioSpin[N][N];
 int iteracion, pasosMC,paso,niter1,niter2,medidas;
@@ -55,6 +66,8 @@ FILE *resultados;
 bool aleatoriedad=false; //True para aleatorio, false para uniforme
 //Declaro las magnitudes que promediare
 double Magnetizacion=0, Energia=0, EnergiaCua=0, CalorEsp=0, FuncCorrelacion=0;
+//Declaro los exponentes criticos teóricos 
+double alfa=0, beta=1/8, nu=1, eta=1/4;
 
 //Obtengo unos valores iniciales para la red
 InicializaRed(red,aleatoriedad);
@@ -64,7 +77,7 @@ Inicializa(PromedioSpin,0.);
 niter1=100;
 niter2=50;
 //Inicializo T a un valor en kelvin y hago la simulacion
-T=2.5;
+T=1.5;
 pasosMC=10E6;
 medidas=pasosMC/niter1;
 
@@ -101,7 +114,11 @@ CalorEsp=CalcCalorEsp(Energia,EnergiaCua,T);//Magnitud final
 FuncCorrelacion=CalcFuncCorrelacion(PromedioSpin,medidas);//Magnitud final
 Energia=EnergiaMedia(Energia);
 
-EscribeMagnitudes(Magnetizacion,Energia,CalorEsp,FuncCorrelacion);
+Tcritica=2/(log(1+sqrt(2)));
+t=abs(T-Tcritica)/Tcritica;
+
+//Escribo todas estas magnitudes como resultado
+EscribeMagnitudes(Magnetizacion,Energia,CalorEsp,FuncCorrelacion,t,alfa,beta,nu,eta);
 
 return 0;
 }
@@ -200,12 +217,30 @@ int condp(int i)
 
 //Funcion que escribe las magnitudes finales por pantalla
 //Ya deben ser los resultados finales
-void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion)
+void EscribeMagnitudes(double Magnetizacion, double Energia,double CalorEsp, double FuncCorrelacion,double t,double alfa, double beta, double nu,double eta)
 {
-    printf("La magnetización promedio es: %lf\n",Magnetizacion);
-    printf("La energia media es: %lf\n",Energia);
-    printf("El calor especifico es: %lf\n",CalorEsp);
-    printf("La función de correlación: %lf\n",FuncCorrelacion);
+    printf("\n\n###########################################\n");
+    printf("###########################################\n");
+     
+    printf("VARIABLES EXPERIMENTALES:\n");
+    printf("La magnetización experimental promedio es: %lf\n",Magnetizacion);
+    printf("La energia media experimental es: %lf\n",Energia);
+    printf("El calor especifico experimental es: %lf\n",CalorEsp); 
+    printf("La función de correlación experimental es: %lf\n",FuncCorrelacion);
+    printf("El coeficiente crítico alfa experimental es: %lf\n",alfaExp(CalorEsp,t));
+    printf("El coeficiente crítico beta experimental es: %lf\n",betaExp(Magnetizacion,t));
+    //printf("El coeficiente crítico nu experimental es: %lf\n\n",nuExp(FuncCorrelacion,t));
+
+    printf("VARIABLES TEÓRICAS:\n");
+    printf("La magnetización teórica promedio es: %lf\n",CalcMagteorica(beta,t));
+    printf("El calor especifico teórica es: %lf\n",CalcCalorespteorico(alfa,t)); 
+    printf("La longitud de correlación teórica es: %lf\n",CalcCorrelacionteorica(nu,t));
+    printf("El coeficiente crítico alfa teórico es: %lf\n",alfa);
+    printf("El coeficiente crítico beta teórico es: %lf\n",beta);
+    printf("El coeficiente crítico nu teórico es: %lf\n",nu);
+
+    printf("###########################################\n");
+    printf("###########################################\n\n");
     return;
 }
 
@@ -322,3 +357,43 @@ double EnergiaMedia(double Energia)
 {
     return Energia/(2*N*N);
 }
+
+//Funcion que devuelve el coeficiente critico beta a partir de 
+//la magnetizacion experimental
+double betaExp(double mag,double t)
+{
+    return (log(mag))/(log(t));
+}
+
+//Funcion que devuelve el coeficiente critico alfa a partir de 
+//el calor especifico experimental
+double alfaExp(double calor,double t)
+{
+    return (-log(calor))/(log(t));
+}
+
+//Funcion que devuelve el coeficiente critico nu a partir de 
+//la funcion de correlacion experimental
+double nuExp(double correlacion,double t)
+{
+    return (-log(correlacion))/(log(t));
+}
+
+//proporciona la magnetizacion a partir de t y beta
+double CalcMagteorica(double beta,double t)
+{
+    return pow(t,beta);
+}
+
+//proporciona el calor especifico a partir de t y alfa
+double CalcCalorespteorico(double alfa,double t)
+{
+    return pow(t,-alfa);
+}
+
+//proporciona la correlacion a partir de t y nu
+double CalcCorrelacionteorica(double nu,double t)
+{
+    return pow(t,-nu);
+}
+

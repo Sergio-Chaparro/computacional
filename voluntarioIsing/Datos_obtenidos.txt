@@ -1,42 +1,10 @@
-Comandos para tmus:
+Comandos para tmux:
 gcc Ising1.c -o Ising1 -L/usr/lib/x86_64-linux-gnu -lgsl -lgslcblas -lm
 ./Ising1
 python3 Ising.py
 exit
 
 
-
-
 Datos obtenidos:
 
-
-Temperatura=1.5
-16 Pixeles
-La magnetización promedio es: -0.001180
-La energia media es: -0.553496
-El calor especifico es: -501.041164
-La función de correlación: 0.553490
-
-
-
-Temperatura=1.7
-16 Pixeles
-
-
-Temperatura=1.7
-16 Pixeles
-
-
-
-Temperatura=1.7
-16 Pixeles
-
-
-Temperatura=1.7
-16 Pixeles
-
-
-
-Temperatura=1.7
-16 Pixeles
 

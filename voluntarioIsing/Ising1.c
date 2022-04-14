@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 
-#define N 16
+#define N 64
 
 //Puntero para generar números aleatorios
 gsl_rng *tau;
@@ -62,9 +62,9 @@ Inicializa(PromedioSpin,0.);
 //Variable que uso para representar un fotograma cada x iteraciones, 1 para medidas y otro para 
 //resultados
 niter1=100;
-niter2=500;
+niter2=50;
 //Inicializo T a un valor en kelvin y hago la simulacion
-T=1.5;
+T=2.5;
 pasosMC=10E6;
 medidas=pasosMC/niter1;
 

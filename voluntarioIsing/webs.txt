@@ -1,0 +1,7 @@
+Paginas usadas:
+
+https://gandhiviswanathan.wordpress.com/2015/01/09/onsagers-solution-of-the-2-d-ising-model-the-combinatorial-method/
+http://www.scholarpedia.org/article/Ising_model:_exact_results
+https://www.arxiv-vanity.com/papers/cond-mat/9511003/
+https://en.wikipedia.org/wiki/Ising_critical_exponents
+https://en.wikipedia.org/wiki/Ising_model

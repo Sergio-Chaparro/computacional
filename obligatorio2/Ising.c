@@ -45,7 +45,7 @@ InicializaRed(red);
 fpiter=2;
 
 //Inicializo T a un valor en kelvin y hago la simulacion
-T=0.5;
+T=2.25;
 pasosMC=5000;
 
 resultados=fopen("resultados.txt","w");
@@ -79,9 +79,10 @@ void InicializaRed(int red[][N])
     {
         for(j=0;j<N;j++)
         {
-            x=gsl_rng_uniform(tau);
-            if(x<0.5) red[i][j]=1;
-            else red[i][j]=-1;
+            red[i][j]=1;
+            //x=gsl_rng_uniform(tau);
+            //if(x<0.5) red[i][j]=1;
+            //else red[i][j]=-1;
         }
     }
     return;

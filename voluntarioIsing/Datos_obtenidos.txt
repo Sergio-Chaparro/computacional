@@ -8,3 +8,177 @@ exit
 Datos obtenidos:
 
 
+###########################################
+###########################################
+TEMPERATURA: 1.500000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.986500
+La energia media experimental es: -0.975534
+El calor especifico experimental es: -647.057020
+La función de correlación experimental es: 0.975555
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 1.700000      N: 16
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.970065
+La energia media experimental es: -0.949066
+El calor especifico experimental es: -540.302755
+La función de correlación experimental es: 0.949065
+###########################################
+###########################################
+###########################################
+###########################################
+TEMPERATURA: 1.900000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.392804
+La energia media experimental es: -0.904674
+El calor especifico experimental es: -439.162317
+La función de correlación experimental es: 0.904731
+###########################################
+###########################################
+
+##########################################
+###########################################
+TEMPERATURA: 2.100000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: -0.019282
+La energia media experimental es: -0.831223
+El calor especifico experimental es: -335.299227
+La función de correlación experimental es: 0.831229
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.300000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: -0.000236
+La energia media experimental es: -0.702914
+El calor especifico experimental es: -218.733913
+La función de correlación experimental es: 0.702972
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.500000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: -0.001485
+La energia media experimental es: -0.565697
+El calor especifico experimental es: -130.159260
+La función de correlación experimental es: 0.565750
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.700000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.001083
+La energia media experimental es: -0.484388
+El calor especifico experimental es: -88.250937
+La función de correlación experimental es: 0.484406
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.900000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.000317
+La energia media experimental es: -0.430271
+El calor especifico experimental es: -64.751109
+La función de correlación experimental es: 0.430218
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 3.100000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.000595
+La energia media experimental es: -0.390067
+El calor especifico experimental es: -49.721274
+La función de correlación experimental es: 0.389946
+###########################################
+###########################################
+###########################################
+###########################################
+TEMPERATURA: 3.300000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.000207
+La energia media experimental es: -0.357298
+El calor especifico experimental es: -39.138060
+La función de correlación experimental es: 0.357435
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 3.500000      N: 16   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: -0.000234
+La energia media experimental es: -0.330086
+El calor especifico experimental es: -31.451022
+La función de correlación experimental es: 0.330240
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 1.500000      N: 32
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.986499
+La energia media experimental es: -0.975568
+El calor especifico experimental es: -2596.253780
+La función de correlación experimental es: 0.975571
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 1.700000      N: 32
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.970007
+La energia media experimental es: -0.948977
+El calor especifico experimental es: -2167.560717
+La función de correlación experimental es: 0.949000
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 1.900000      N: 32   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.938208
+La energia media experimental es: -0.904583
+El calor especifico experimental es: -1762.088696
+La función de correlación experimental es: 0.904624
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.100000      N: 32   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.868786
+La energia media experimental es: -0.830927
+El calor especifico experimental es: -1345.074409
+La función de correlación experimental es: 0.830977
+###########################################
+###########################################
+
+###########################################
+###########################################
+TEMPERATURA: 2.300000      N: 32   
+VARIABLES EXPERIMENTALES:
+La magnetización experimental promedio es: 0.013216
+La energia media experimental es: -0.687544
+El calor especifico experimental es: -840.635641
+La función de correlación experimental es: 0.687595
+###########################################
+###########################################
+

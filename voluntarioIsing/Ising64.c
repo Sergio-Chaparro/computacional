@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 
-#define N 128
+#define N 64
 
 //Puntero para generar números aleatorios
 gsl_rng *tau;
@@ -62,26 +62,27 @@ double T;
 int red[N][N];
 double PromedioSpin[N][N];
 int iteracion, pasosMC,paso,niter1,niter2,medidas;
-FILE *resultados;
+//FILE *resultados;
 bool aleatoriedad=false; //True para aleatorio, false para uniforme
 //Declaro las magnitudes que promediare
 double Magnetizacion=0, Energia=0, EnergiaCua=0, CalorEsp=0, FuncCorrelacion=0;
 
-//Obtengo unos valores iniciales para la red
-InicializaRed(red,aleatoriedad);
-Inicializa(PromedioSpin,0.);
+
 //Variable que uso para representar un fotograma cada x iteraciones, 1 para medidas y otro para 
 //resultados
 niter1=100;
 niter2=500;
 //Inicializo T a un valor en kelvin y hago la simulacion
-T=3.5;
+//T=2.5;
 pasosMC=10E6;
 medidas=pasosMC/niter1;
 
-
-
-resultados=fopen("resultados.txt","w");
+for(T=1.8;T<=2.4;T+=0.05){
+Magnetizacion=0, Energia=0, EnergiaCua=0, CalorEsp=0, FuncCorrelacion=0;
+//Obtengo unos valores iniciales para la red
+InicializaRed(red,aleatoriedad);
+Inicializa(PromedioSpin,0.);
+//resultados=fopen("resultados.txt","w");
 for(paso=0;paso<pasosMC;paso++)
 {
     for(iteracion=0;iteracion<N*N;iteracion++)
@@ -90,7 +91,7 @@ for(paso=0;paso<pasosMC;paso++)
     }    
     if((paso%niter2)==0)
     {
-        EscribeResultados(red,resultados);
+        //EscribeResultados(red,resultados);
     }
     if((paso%niter1)==0)
     {        
@@ -100,7 +101,7 @@ for(paso=0;paso<pasosMC;paso++)
         ProductoSpin(red,PromedioSpin);
     }        
 }
-fclose(resultados);
+//fclose(resultados);
 
 //Finalizo promediando y escribiendo los valores obtenidos
 
@@ -115,7 +116,7 @@ Energia=EnergiaMedia(Energia);
 
 //Escribo todas estas magnitudes como resultado
 EscribeMagnitudes(Magnetizacion,Energia,CalorEsp,FuncCorrelacion,T);
-
+}
 return 0;
 }
 

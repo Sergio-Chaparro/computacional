@@ -18,7 +18,9 @@ void Calcb(fcomplex FuncOnda[],fcomplex b[], double st, int contador);
 void CalcB(fcomplex B[], fcomplex A[][3], fcomplex b[],int contador,fcomplex alfa[]);
 void CalcXi(fcomplex A[][3], fcomplex B[], fcomplex Xi[],int contador, fcomplex[]);
 void Algoritmo(fcomplex B[], fcomplex b[], fcomplex A[][3], fcomplex Xi[], double st, fcomplex V[],int contador, fcomplex alfa[N],fcomplex FuncOnda[]);
-void Escribe(fcomplex FuncOnda[], int contador,FILE *f,double h);
+double CalcNorma(fcomplex FuncOnda[],double h);
+void Normaliza(fcomplex FuncOnda[],double Norma);
+void Escribe(fcomplex FuncOnda[], FILE *f,double h);
 
 
 int main(void)
@@ -27,8 +29,8 @@ int main(void)
     int contador=0;
     fcomplex FuncOnda[N], V[N];
     fcomplex A[N][3], b[N], B[N], Xi[N],alfa[N];
-    double lambda=0.3, kt,st, h=1.;
-    FILE *f;
+    double lambda=0.3, kt,st, h=1., Norma;
+    FILE *f,*norma;
 
     //Calculo K y S para usarlos posteriormente
     kt=2*pi*nciclos/N;
@@ -38,17 +40,23 @@ int main(void)
     FuncInicial(FuncOnda);
     CondContorno(FuncOnda);
     CalcPotencial(lambda,V);
+    Norma=CalcNorma(FuncOnda,h);
+    Normaliza(FuncOnda,Norma);
     f=fopen("resultados.txt","w");
-    Escribe(FuncOnda,contador,f,h);
+    norma=fopen("norma.txt","w");
+    Escribe(FuncOnda,f,h);
+    fprintf(norma,"%i\t%.16lf\n",contador,CalcNorma(FuncOnda,h));
 
     //ejetuco el algoritmo    
     while (contador<nciclos-1)
     {
        Algoritmo(B,b,A,Xi,st,V,contador,alfa,FuncOnda);
-       Escribe(FuncOnda,contador+1,f,h);
+       Escribe(FuncOnda,f,h);
+       fprintf(norma,"%i\t%.16lf\n",contador+1,CalcNorma(FuncOnda,h));
        contador++;
     }
     fclose(f);
+    fclose(norma);
 
     return 0;
 }
@@ -160,9 +168,30 @@ void Algoritmo(fcomplex B[], fcomplex b[], fcomplex A[][3], fcomplex Xi[], doubl
     return;    
 }
 
+void Normaliza(fcomplex FuncOnda[], double Norma)
+{
+    int j;
+    for(j=0;j<N;j++)
+    {
+        FuncOnda[j]=Cdiv(FuncOnda[j],Csqrt(Complex(Norma,0.)));
+    }
+
+}
+
+//Funcion que calcula la norma 
+double CalcNorma(fcomplex FuncOnda[],double h)
+{
+    int i;
+    double suma=0;
+    for(i=0;i<N;i++)
+    {
+        suma=suma+Cabs(FuncOnda[i])*Cabs(FuncOnda[i])*h;           
+    }
+    return suma;
+}
 //Funcion que escribe los resultados, escribe posicion, parte real y parte imaginaria
 //Lo escribe en  un fichero f
-void Escribe(fcomplex FuncOnda[], int contador, FILE *f, double h)
+void Escribe(fcomplex FuncOnda[],  FILE *f, double h)
 {
     int i,j;
     for(i=0;i<N;i++)

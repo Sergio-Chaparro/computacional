@@ -6,8 +6,8 @@
 #include <stdio.h>
 
 #define pi 3.141592
-#define N 10
-#define nciclos 10
+#define N 500
+#define nciclos 100
 
 
 void CalcPotencial(double lambda,fcomplex V[]);
@@ -27,7 +27,7 @@ int main(void)
     int contador=0;
     fcomplex FuncOnda[N][nciclos], V[N];
     fcomplex A[N][3], b[N], B[N][nciclos], Xi[N][nciclos],alfa[N];
-    double lambda=1., kt,st, h=1.;
+    double lambda=0.3, kt,st, h=1.;
     FILE *f;
 
     //Calculo K y S para usarlos posteriormente
@@ -39,12 +39,14 @@ int main(void)
     CondContorno(FuncOnda);
     CalcPotencial(lambda,V);
     f=fopen("resultados.txt","w");
+    Escribe(FuncOnda,contador,f,h);
 
     //ejetuco el algoritmo    
-    while (contador<nciclos)
+    while (contador<nciclos-1)
     {
        Algoritmo(B,b,A,Xi,st,V,contador,alfa,FuncOnda);
-       Escribe(FuncOnda,contador,f,h);
+       Escribe(FuncOnda,contador+1,f,h);
+       contador++;
     }
     fclose(f);
 
@@ -57,9 +59,9 @@ void CalcPotencial(double lambda,fcomplex V[nciclos])
     int j;
     for(j=0;j<N;j++)
     {
-        if((j<=3*N/5)&&(j>=2*N/5))
+        if((j<=3.*N/5)&&(j>=2.*N/5))
         {
-            V[j]=Cmul(Complex(lambda,0.),Complex((2*pi*nciclos/N)*(2*pi*nciclos/N),0.));
+            V[j]=Cmul(Complex(lambda,0.),Complex((2*pi*nciclos*1./N)*(2*pi*nciclos*1./N),0.));
         }
         else 
         {
@@ -73,9 +75,9 @@ void CalcPotencial(double lambda,fcomplex V[nciclos])
 void FuncInicial(fcomplex FuncOnda[][nciclos])
 {
     int j;
-    for(j=1;j<N-1;j++)
+    for(j=1;j<N-2;j++)
     {
-        FuncOnda[j][0]=Cgauss(2*pi*nciclos/N,exp(-8*(4*j-N)*(4*j-N)/(N*N)));        
+        FuncOnda[j][0]=Cgauss(j*2*pi*nciclos*1./N,exp(-8.*(4.*j-N)*(4.*j-N)/(N*N)));        
     }
     return;
 }
@@ -122,7 +124,7 @@ void CalcB(fcomplex B[][nciclos], fcomplex A[][3], fcomplex b[],int contador,fco
     B[N-1][contador]=Complex(0.,0.);
     alfa[N-1]=Complex(0,0);
     
-    for(j=N-2;j>0;j--)
+    for(j=N-1;j>0;j--)
     {
         gamma[j]=Cdiv(Complex(1.,0),Cadd(A[j][1],Cmul(A[j][2],alfa[j])));
         B[j-1][contador]=Cmul(gamma[j],Csub(b[j],Cmul(A[j][2],B[j][contador])));
@@ -135,9 +137,10 @@ void CalcB(fcomplex B[][nciclos], fcomplex A[][3], fcomplex b[],int contador,fco
 void CalcXi(fcomplex A[][nciclos], fcomplex B[][nciclos], fcomplex Xi[][nciclos],int contador,fcomplex alfa[N])
 {
     int j;
-    for(j=0;j<N-1;j++)
+    Xi[0][contador]=Complex(0,0);
+    for(j=0;j<N-2;j++)
     {
-        Xi[j][contador+1]=Cadd(Cmul(alfa[j],Xi[j][contador]),B[j][contador]);
+        Xi[j+1][contador]=Cadd(Cmul(alfa[j],Xi[j][contador]),B[j][contador]);
     }
     return;
 }
@@ -152,9 +155,9 @@ void Algoritmo(fcomplex B[][nciclos], fcomplex b[], fcomplex A[][3], fcomplex Xi
     CalcXi;
     for(j=0;j<N;j++)
     {
-        FuncOnda[j][contador]=Csub(Xi[j][contador],FuncOnda[j][contador]);
+        FuncOnda[j][contador+1]=Csub(Xi[j][contador],FuncOnda[j][contador]);
     }
-    contador++;
+    return;    
 }
 
 //Funcion que escribe los resultados, escribe posicion, parte real y parte imaginaria
@@ -162,14 +165,18 @@ void Algoritmo(fcomplex B[][nciclos], fcomplex b[], fcomplex A[][3], fcomplex Xi
 void Escribe(fcomplex FuncOnda[][nciclos], int contador, FILE *f, double h)
 {
     int i,j;
-    for(j=0;j<nciclos;j++)
-
+    for(i=0;i<N;i++)
     {
-        for(i=0;i<N;i++)
+        if(isinf(Cabs(FuncOnda[i][contador])*Cabs(FuncOnda[i][contador]))||(isnan(Cabs(FuncOnda[i][contador])))) 
         {
-            fprintf(f,"%lf,\t%lf,\t%lf,\n",h*i,FuncOnda[i][j].r,FuncOnda[i][j].i);
+            fprintf(f,"%.16lf,\t%.16lf\n",h*i,0.);
         }
-        fprintf(f,"\n");
+        
+        else
+        {
+            fprintf(f,"%.16lf,\t%.16lf\n",h*i,Cabs(FuncOnda[i][contador])*Cabs(FuncOnda[i][contador]));
+        }
     }
+    fprintf(f,"\n");
     return;
 }

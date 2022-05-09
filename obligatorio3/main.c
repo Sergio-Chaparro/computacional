@@ -16,7 +16,7 @@ void CondContorno(fcomplex FuncOnda[]);
 void CalcA(fcomplex V[], double st, fcomplex A[][3]);
 void Calcb(fcomplex FuncOnda[],fcomplex b[], double st, int contador);
 void CalcB(fcomplex B[], fcomplex A[][3], fcomplex b[],int contador,fcomplex alfa[]);
-void CalcXi(fcomplex A[][3], fcomplex B[], fcomplex Xi[],int contador, fcomplex[]);
+void CalcXi(fcomplex A[][3], fcomplex B[], fcomplex Xi[],int contador, fcomplex alfa[]);
 void Algoritmo(fcomplex B[], fcomplex b[], fcomplex A[][3], fcomplex Xi[], double st, fcomplex V[],int contador, fcomplex alfa[N],fcomplex FuncOnda[]);
 double CalcNorma(fcomplex FuncOnda[],double h);
 void Normaliza(fcomplex FuncOnda[],double Norma);
@@ -29,7 +29,7 @@ int main(void)
     int contador=0;
     fcomplex FuncOnda[N], V[N];
     fcomplex A[N][3], b[N], B[N], Xi[N],alfa[N];
-    double lambda=0.3, kt,st, h=1., Norma;
+    double lambda=5, kt,st, h=1., Norma;
     FILE *f,*norma;
 
     //Calculo K y S para usarlos posteriormente
@@ -40,21 +40,27 @@ int main(void)
     FuncInicial(FuncOnda);
     CondContorno(FuncOnda);
     CalcPotencial(lambda,V);
+    //Normalizo
     Norma=CalcNorma(FuncOnda,h);
     Normaliza(FuncOnda,Norma);
+    //Abro los ficheros que necesitaré
     f=fopen("resultados.txt","w");
     norma=fopen("norma.txt","w");
     Escribe(FuncOnda,f,h);
     fprintf(norma,"%i\t%.16lf\n",contador,CalcNorma(FuncOnda,h));
 
     //ejetuco el algoritmo    
-    while (contador<nciclos-1)
+    while (contador<5000)
     {
        Algoritmo(B,b,A,Xi,st,V,contador,alfa,FuncOnda);
-       Escribe(FuncOnda,f,h);
-       fprintf(norma,"%i\t%.16lf\n",contador+1,CalcNorma(FuncOnda,h));
+       if((contador%30)==0)
+       {
+            Escribe(FuncOnda,f,h);
+            fprintf(norma,"%i\t%.16lf\n",contador+1,CalcNorma(FuncOnda,h));            
+       }       
        contador++;
     }
+    //Cierro los ficheros
     fclose(f);
     fclose(norma);
 
@@ -129,10 +135,10 @@ void CalcB(fcomplex B[], fcomplex A[][3], fcomplex b[],int contador,fcomplex alf
     int j;
     fcomplex  gamma[N];
 
-    B[N-1]=Complex(0.,0.);
-    alfa[N-1]=Complex(0,0);
+    B[N-2]=Complex(0.,0.);
+    alfa[N-2]=Complex(0,0);
     
-    for(j=N-1;j>0;j--)
+    for(j=N-2;j>0;j--)
     {
         gamma[j]=Cdiv(Complex(1.,0),Cadd(A[j][1],Cmul(A[j][2],alfa[j])));
         B[j-1]=Cmul(gamma[j],Csub(b[j],Cmul(A[j][2],B[j])));
@@ -142,7 +148,7 @@ void CalcB(fcomplex B[], fcomplex A[][3], fcomplex b[],int contador,fcomplex alf
 }
 
 //funcion que calcula Xi apartir de A y B
-void CalcXi(fcomplex A[][3], fcomplex B[], fcomplex Xi[],int contador,fcomplex alfa[N])
+void CalcXi(fcomplex A[][3], fcomplex B[], fcomplex Xi[],int contador,fcomplex alfa[])
 {
     int j;
     Xi[0]=Complex(0,0);

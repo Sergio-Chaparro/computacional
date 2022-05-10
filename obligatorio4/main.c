@@ -42,11 +42,11 @@ int main(void)
     ve=sqrt(2*G*Mt/Rt)/Dtl;
     
     //variables principales a cambiar
-    v=ve*10;
-    theta=0;
-    h=0.001;
-    phi=0;
-    tmax=10E4;
+    v=ve*1000000;
+    theta=-0.2;
+    h=0.01;
+    phi=-1.5;
+    tmax=10E3;
     Comprobacion=false;
 
     CondIniciales(&r,&phi,&pr,&pphi,t,v,theta);
@@ -56,7 +56,7 @@ int main(void)
     resultados=fopen("resultados.txt","w");
     while (t<tmax)
     {        
-        if((contador%(int)tmax)==0)
+        if((contador%1000)==0)
         {
             EscribeAnimacion(r,phi,pr,pphi,t,resultados);            
         }        

@@ -49,10 +49,10 @@ file_in = "resultados.txt" # Nombre del fichero de datos
 file_out = "Space" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -1.5
+x_min = -0.5
 x_max = 1.5
-y_min = -1.5 
-y_max = 1.5
+y_min = -1
+y_max = 1
 
 interval = 16 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta

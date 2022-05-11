@@ -17,7 +17,7 @@
 void RK4(double *r,double *phi,double *pr,double *pphi,double h,double *t);
 double  DistLuna(double r,double phi,double t);
 double DistTierra(double r,double phi,double t);
-void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta);
+void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta, double m);
 void EscribeAnimacion(double r,double phi,double pr,double pphi,double t,FILE *f);
 
 //defino las cuatro funciones que luego pasaré al algoritmo RK4
@@ -26,45 +26,48 @@ double phipunto(double r,double phi,double pr,double pphi,double t);
 double prpunto(double r,double phi,double pr,double pphi,double t);
 double pphipunto(double r,double phi,double pr,double pphi,double t);
 
-void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t);
+void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t, double m);
 //void ComprobarH(double h,double t,);
-
+double CalcHprima(double r, double phi, double pr, double pphi, double t, double m);
 
 int main(void)
 {
     double r,phi,pr,pphi,t=0;
-    double h, m;
+    double h, m=235000;
     double tmax,ve,v,theta;
-    FILE *resultados;
+    FILE *resultados, *Hprima;
     bool Comprobacion;
     int contador=0;
     //calculo la velocidad de escape
-    ve=sqrt(2*G*Mt/Rt)/Dtl;
+    ve=sqrt(2*G*Mt/Rt);
     
     //variables principales a cambiar
-    v=ve*1000000;
-    theta=-0.2;
+    v=ve*0.9918;
+    theta=0.57;
     h=0.01;
-    phi=-1.5;
-    tmax=10E3;
+    phi=-0.1;
+    tmax=10E5;
     Comprobacion=false;
 
-    CondIniciales(&r,&phi,&pr,&pphi,t,v,theta);
-    ReescalaVariables(&r,&phi,&pr,&pphi,t);
+    CondIniciales(&r,&phi,&pr,&pphi,t,v,theta,m);
+    ReescalaVariables(&r,&phi,&pr,&pphi,t,m);
 
     //abro los ficheros
     resultados=fopen("resultados.txt","w");
+    Hprima=fopen("Hprima.txt","w");
     while (t<tmax)
     {        
-        if((contador%1000)==0)
+        if((contador%100000)==0)
         {
-            EscribeAnimacion(r,phi,pr,pphi,t,resultados);            
+            EscribeAnimacion(r,phi,pr,pphi,t,resultados);  
+            fprintf(Hprima,"%lf\t%lf\n",t,CalcHprima(r,phi,pr,pphi,t,m));          
         }        
         RK4(&r,&phi,&pr,&pphi,h,&t);
         contador++;
     }
     //cierro los ficheros
     fclose(resultados);
+    fclose(Hprima);
 
     return 0;
 }
@@ -108,11 +111,11 @@ void RK4(double *r,double *phi,double *pr,double *pphi,double h,double *t)
 
 
 
-void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta)
+void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta, double m)
 {
     *r=Rt;
-    *pr=v*cos(theta-*phi);
-    *pphi=(*r)*v*sin(theta-*phi);
+    *pr=m*v*cos(theta-*phi);
+    *pphi=m*(Rt)*v*sin(theta-*phi);
     return;
 }
 
@@ -164,11 +167,20 @@ double pphipunto(double r,double phi,double pr,double pphi,double t)
 
 
 
-void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t)
+void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t,double m)
 {
     *r=*r/Dtl;
     *phi=*phi;
-    *pr=*pr/(Dtl);
-    *pphi=*pphi/(Dtl*Dtl);
+    *pr=*pr/(Dtl*m);
+    *pphi=*pphi/(Dtl*Dtl*m);
     return;
+}
+
+
+double CalcHprima(double r, double phi, double pr, double pphi, double t,double m)
+{
+    double H, rl;
+    rl=sqrt(1+r*r-2*r*cos(phi-w*t));
+    H=pr*pr*m*Dtl*Dtl/2+pphi*pphi*m/(2*r*r)-G*m*Mt/(r*Dtl)-G*m*Ml/(Dtl*rl);
+    return (H-pphi*m*Dtl*Dtl*w);
 }

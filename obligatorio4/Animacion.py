@@ -49,10 +49,10 @@ file_in = "resultados.txt" # Nombre del fichero de datos
 file_out = "Space" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -0.5
-x_max = 1.5
-y_min = -1
-y_max = 1
+x_min = -0.6
+x_max = 1.2
+y_min = -0.3
+y_max = 1.2
 
 interval = 16 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
@@ -64,7 +64,8 @@ dpi = 150 # Calidad del vídeo de salida (dots per inch)
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-planet_radius = 0.01 
+planet_radius = [0.0164, 0.01, 0.00447]
+planet_color= ["#05f082", "#6c706e", "#f50505"] 
 #planet_radius = [0.5, 0.7, 1.1]
 
 
@@ -129,10 +130,10 @@ else:
 # al punto en una lista
 planet_points = list()
 planet_trails = list()
-for planet_pos, radius in zip(frames_data[0], planet_radius):
+for planet_pos, radius, pc  in zip(frames_data[0], planet_radius, planet_color):
     x, y = planet_pos
     #planet_point, = ax.plot(x, y, "o", markersize=10)
-    planet_point = Circle((x, y), radius)
+    planet_point = Circle((x, y), radius,color=pc)
     ax.add_artist(planet_point)
     planet_points.append(planet_point)
 

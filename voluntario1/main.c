@@ -1,4 +1,4 @@
-//Programa que simula el envio de una nave espacial a la luna
+//Programa que simula el envio de una nave espacial a destruir un asteroide
 
 //Declaro una gran cantidad de variables que usaré
 //en todo el programa y que no necesitaré cambiar
@@ -18,9 +18,10 @@
 #include <stdbool.h>
 
 void RK4(double *r,double *phi,double *pr,double *pphi,double h,double *t, double angulolunainicial);
+void RK4asteroid(double *r,double *phi,double *pr,double *pphi,double h,double *t, double angulolunainicial,double m);
 
 void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta, double m);
-void EscribeAnimacion(double r,double phi,double pr,double pphi,double t,FILE *f, double angulolunainicial, double xasteroid);
+void EscribeAnimacion(double r,double phi,double t,FILE *f, double angulolunainicial, double ra,double phia);
 
 //defino las cuatro funciones que luego pasaré al algoritmo RK4
 double rpunto(double r,double phi,double pr,double pphi,double t, double angulolunainicial);
@@ -29,17 +30,37 @@ double prpunto(double r,double phi,double pr,double pphi,double t, double angulo
 double pphipunto(double r,double phi,double pr,double pphi,double t, double angulolunainicial);
 
 void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t, double m);
-void impulso(double *pr, double velocidad, double *energia, int numeroimpulsos, double m);
+void impulsor(double *pr, double velocidad, double *energia, int numeroimpulsos, double m);
+void impulsophi(double *pphi,double r,double velocidad, double *energia, int numeroimpulsos, double m);
+void VariablesCometa(double *ra,double *phia,double *pra,double *pphia,double m);
+double DistanciaColision(double r,double phi,double ra,double phia);
+
 
 int main(void)
 {
-    double r,phi,pr,pphi,t=0, angulolunainicial, xasteroid;
-    double h, m=235000;
-    double tmax,ve,v,theta;
-    FILE *resultados;
+    //variables globales
+    double  h,tmax,ve,t=0;
     bool Impacto=false;
     int contador=0;
-    double energiausada=0, vimpulsos=660;
+
+    //variables de el cohete
+    double r,phi,pr,pphi;
+    double  m=235000;
+    double v,theta;
+    double energiausada=0, vimpulsos=200;
+    //variables de la luna
+    double  angulolunainicial;
+    //variables del cometa
+    double  ra,pra,phia,pphia;
+    double DistanciaMinima=Dtl;
+
+    //variables de fragnmentos
+
+
+    //otras variables
+    FILE *resultados;
+    
+    
     int impulsos=0;
     //calculo la velocidad de escape
     ve=sqrt(2*G*Mt/Rt);
@@ -53,38 +74,62 @@ int main(void)
     angulolunainicial=-0.85;
     
     
-
+    //condiciones iniciales 
     CondIniciales(&r,&phi,&pr,&pphi,t,v,theta,m);
     ReescalaVariables(&r,&phi,&pr,&pphi,t,m);
-    xasteroid=10.;
+    VariablesCometa(&ra,&phia,&pra,&pphia,m);
     //abro los ficheros
     resultados=fopen("resultados.txt","w");
    
+
+   //ciclo principal donde se desarrolla la simulacion
     while ((t<tmax)&&!Impacto)
     {        
+        //escribo resultados
         if((contador%100000)==0)
         {
-            EscribeAnimacion(r,phi,pr,pphi,t,resultados,angulolunainicial, xasteroid);                       
+            EscribeAnimacion(r,phi,t,resultados,angulolunainicial,ra,phia);                       
         }        
+        //simulo los movimientos
         RK4(&r,&phi,&pr,&pphi,h,&t,angulolunainicial);
-        //el movimiento del asteroide será simplemente un movimiento acelerado en una dimensión
-        xasteroid=10-Vasteroid/Dtl*t-G*Mt*Masteroid/(xasteroid*xasteroid)*t*t/2;
+        RK4asteroid(&ra,&phia,&pra,&pphia,h,&t,angulolunainicial,m);
+        t=t+h;
         contador++;
-        if(((xasteroid-r*cos(phi))*(xasteroid-r*cos(phi))+r*r*sin(phi)*sin(phi))<(Rasteroid*Rasteroid)) 
+
+
+        //Calculo distancia minima
+        if(DistanciaMinima>DistanciaColision(r,phi,ra,phia))    DistanciaMinima=DistanciaColision(r,phi,ra,pphia);
+
+        //compruebo si la nave ha impactado
+        if(DistanciaColision(r,phi,ra,phia)<Rasteroid) 
         {
             Impacto=true;
-            printf("velocidad radial relativa=%lf\t velocidad angular relativa=%lf\n",pr*Dtl*m,pphi*Dtl*m*Dtl);
+            printf("velocidad radial relativa=%lf\t velocidad angular relativa=%lf\n",((pr-pra)*Dtl),((pphi/r-pphia/ra)*Dtl));
         }
-        //impulsos
-        if(fabs(t-0.7*tmax)<h)
+
+
+        //Momentos de impulsar la nave
+        if(fabs(t-0.66*tmax)<6*h)
         {
-            impulso(&pr,-vimpulsos,&energiausada,2,m);
-            impulsos=impulsos+2;            
+            impulsor(&pr,-vimpulsos,&energiausada,1,m);
+            impulsos=impulsos+1;            
         } 
+        //if(fabs(t-0.8*tmax)<h)
+       //{
+        //    impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
+        //    impulsos=impulsos+1;            
+        //} 
 
     }
-    if(Impacto) printf("Se ha impactado con %i impulsos.\n Energia usada: %lf\n",impulsos,energiausada);
+    
+    //Distancia a colision
+    printf("Distancia a colision: %lf\n",DistanciaMinima*Dtl);         
 
+
+    //resultados finales
+    printf("%i impulsos.\n Energia usada: %lf\n",impulsos,energiausada);
+
+   
     //cierro los ficheros
     fclose(resultados);
 
@@ -96,7 +141,7 @@ int main(void)
 void RK4(double *r,double *phi,double *pr,double *pphi,double h,double *t, double angulolunainicial)
 {
     double K1[4],K2[4],K3[4],K4[4];
-    double R,PHI,PR,PPHI;
+    
     
     K1[0]=h*rpunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
     K1[1]=h*phipunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
@@ -123,13 +168,54 @@ void RK4(double *r,double *phi,double *pr,double *pphi,double h,double *t, doubl
     *phi=*phi+1./6*(K1[1]+2*K2[1]+2*K3[1]+K4[1]);
     *pr=*pr+1./6*(K1[2]+2*K2[2]+2*K3[2]+K4[2]);
     *pphi=*pphi+1./6*(K1[3]+2*K2[3]+2*K3[3]+K4[3]);
-    *t=*t+h;
+    //*t=*t+h;
     
     return;
 }
 
+//funciona en otras unidades
+void RK4asteroid(double *r,double *phi,double *pr,double *pphi,double h,double *t, double angulolunainicial,double m)
+{
+    double K1[4],K2[4],K3[4],K4[4];
 
+    //reescala variables para poder usar estas ecuaciones de movimiento con un m distinto    
+    *pr=*pr*m/Masteroid;
+    *pphi=*pphi*m/Masteroid;
+    
+    
+    K1[0]=h*rpunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
+    K1[1]=h*phipunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
+    K1[2]=h*prpunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
+    K1[3]=h*pphipunto(*r,*phi,*pr,*pphi,*t,angulolunainicial);
 
+    K2[0]=h*rpunto(*r+K1[0]/2,*phi+K1[1]/2,*pr+K1[2]/2,*pphi+K1[3]/2,*t+h/2,angulolunainicial);
+    K2[1]=h*phipunto(*r+K1[0]/2,*phi+K1[1]/2,*pr+K1[2]/2,*pphi+K1[3]/2,*t+h/2,angulolunainicial);
+    K2[2]=h*prpunto(*r+K1[0]/2,*phi+K1[1]/2,*pr+K1[2]/2,*pphi+K1[3]/2,*t+h/2,angulolunainicial);
+    K2[3]=h*pphipunto(*r+K1[0]/2,*phi+K1[1]/2,*pr+K1[2]/2,*pphi+K1[3]/2,*t+h/2,angulolunainicial);
+
+    K3[0]=h*rpunto(*r+K2[0]/2,*phi+K2[1]/2,*pr+K2[2]/2,*pphi+K2[3]/2,*t+h/2,angulolunainicial);
+    K3[1]=h*phipunto(*r+K2[0]/2,*phi+K2[1]/2,*pr+K2[2]/2,*pphi+K2[3]/2,*t+h/2,angulolunainicial);
+    K3[2]=h*prpunto(*r+K2[0]/2,*phi+K2[1]/2,*pr+K2[2]/2,*pphi+K2[3]/2,*t+h/2,angulolunainicial);
+    K3[3]=h*pphipunto(*r+K2[0]/2,*phi+K2[1]/2,*pr+K2[2]/2,*pphi+K2[3]/2,*t+h/2,angulolunainicial);
+
+    
+    K4[0]=h*rpunto(*r+K3[0],*phi+K3[1],*pr+K3[2],*pphi+K3[3],*t+h,angulolunainicial);
+    K4[1]=h*phipunto(*r+K3[0],*phi+K3[1],*pr+K3[2],*pphi+K3[3],*t+h,angulolunainicial);
+    K4[2]=h*prpunto(*r+K3[0],*phi+K3[1],*pr+K3[2],*pphi+K3[3],*t+h,angulolunainicial);
+    K4[3]=h*pphipunto(*r+K3[0],*phi+K3[1],*pr+K3[2],*pphi+K3[3],*t+h,angulolunainicial);
+
+    *r=*r+1./6*(K1[0]+2*K2[0]+2*K3[0]+K4[0]);
+    *phi=*phi+1./6*(K1[1]+2*K2[1]+2*K3[1]+K4[1]);
+    *pr=*pr+1./6*(K1[2]+2*K2[2]+2*K3[2]+K4[2]);
+    *pphi=*pphi+1./6*(K1[3]+2*K2[3]+2*K3[3]+K4[3]);
+    //*t=*t+h;
+    
+
+    //desescalo variables 
+    *pr=*pr/m*Masteroid;
+    *pphi=*pphi/m*Masteroid;
+    return;
+}
 
 void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double v, double theta, double m)
 {
@@ -140,22 +226,24 @@ void CondIniciales(double *r,double *phi,double *pr,double *pphi,double t,double
 }
 
 
-void EscribeAnimacion(double r,double phi,double pr,double pphi,double t,FILE *f, double angulolunainicial,double xasteroid)
+void EscribeAnimacion(double r,double phi,double t,FILE *f, double angulolunainicial, double ra,double phia)
 {
-    double x,y,xl,yl;
+    double x,y,xl,yl,xa,ya;
     x=r*cos(phi);
     y=r*sin(phi);
     xl=cos(w*t+angulolunainicial);
-    yl=sin(w*t+angulolunainicial);    
+    yl=sin(w*t+angulolunainicial);  
+    xa=ra*cos(phia);
+    ya=ra*sin(phia);  
     
     fprintf(f,"%lf,\t%lf\n",0.,0.);
     fprintf(f,"%lf,\t%lf\n",xl,yl);
     fprintf(f,"%lf,\t%lf\n",x,y);
-    fprintf(f,"%lf,\t%lf\n\n",xasteroid,0.);
+    fprintf(f,"%lf,\t%lf\n\n",xa,ya);
     return;
 }
 
-
+//funciones para resolver la atraccion gravitatoria de la tierra y la luna con el objeto en cuestion
 double rpunto(double r,double phi,double pr,double pphi,double t, double angulolunainicial)
 {
     return pr;
@@ -200,12 +288,46 @@ void ReescalaVariables(double *r,double *phi,double *pr,double *pphi,double t,do
 
 //funcion que genera un impulso en la direccion radial, se considera
 //que se pueden hacer varios impulsos a la vez
-void impulso(double *pr, double velocidad, double *energia, int numeroimpulsos, double m)
+void impulsor(double *pr, double velocidad, double *energia, int numeroimpulsos, double m)
 {
     int i;
     for(i=0;i<numeroimpulsos;i++)
     {
+        *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
         *pr=*pr+velocidad/Dtl;
-        *energia=*energia+0.5*m*velocidad*velocidad;
+        
     }
+    return;
+}
+
+void impulsophi(double *pphi,double r,double velocidad, double *energia, int numeroimpulsos, double m)
+{
+    int i;
+    for(i=0;i<numeroimpulsos;i++)
+    {
+        *energia=*energia+0.5*m*((velocidad+(*pphi)*Dtl/r)*(velocidad+(*pphi)*Dtl/r)-(*pphi)*(*pphi)*(Dtl*Dtl)/(r*r));
+        *pphi=*pphi+velocidad/Dtl*r;
+        
+    }
+    return;
+}
+
+
+//funcion que proporciona las variables del cometa ya reescaladas
+void VariablesCometa(double *ra,double *phia,double *pra,double *pphia,double m)
+{
+    *ra=10;
+    *phia=0;
+    *pphia=0;
+    *pra=1/(m*Dtl)*Masteroid*-Vasteroid;
+    return;
+}
+
+
+
+double DistanciaColision(double r,double phi,double ra,double phia)
+{
+    double distancia;
+    distancia=sqrt((ra*cos(phia)-r*cos(phi))*(ra*cos(phia)-r*cos(phi))+(ra*sin(phia)-r*sin(phi))*(ra*sin(phia)-r*sin(phi)));
+    return distancia;
 }

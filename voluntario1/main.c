@@ -35,6 +35,10 @@ void impulsophi(double *pphi,double r,double velocidad, double *energia, int num
 void VariablesCometa(double *ra,double *phia,double *pra,double *pphia,double m);
 double DistanciaColision(double r,double phi,double ra,double phia);
 
+void variablesfragmentos(double *rf1,double *phif1,double *prf1,double *pphif1,double *rf2,double *phif2,double *prf2,double *pphif2,double energiabomba, double rasteroid, double phiasteroid, double prasteroid,double pphiasteroid, double m);
+void escribeanimacion2(double rf1,double phif1,double rf2,double phif2,double t,FILE *f2, double angulolunainicial);
+
+
 
 int main(void)
 {
@@ -48,17 +52,18 @@ int main(void)
     double  m=235000;
     double v,theta;
     double energiausada=0, vimpulsos=17;
+    double energiabomba=150*4.18E15; //primer numero megatones
     //variables de la luna
     double  angulolunainicial;
     //variables del cometa
     double  ra,pra,phia,pphia;
-    double DistanciaMinima=Dtl;
+    double DistanciaMinima=10*Dtl;
 
     //variables de fragnmentos
-
+    double rf1,rf2,phif1,phif2,prf1,prf2,pphif1,pphif2;
 
     //otras variables
-    FILE *resultados;
+    FILE *resultados,*resultados2;
     
     
     int impulsos=0;
@@ -86,7 +91,7 @@ int main(void)
     while ((t<tmax)&&!Impacto)
     {        
         //escribo resultados
-        if(((contador%10000)==0))
+        if(((contador%100000)==0))
         {
             EscribeAnimacion(r,phi,t,resultados,angulolunainicial,ra,phia);                       
         }        
@@ -98,11 +103,12 @@ int main(void)
 
 
         //Calculo distancia minima
-        if(DistanciaMinima>DistanciaColision(r,phi,ra,phia))    DistanciaMinima=DistanciaColision(r,phi,ra,pphia);
+        if(DistanciaMinima>DistanciaColision(r,phi,ra,phia))    DistanciaMinima=DistanciaColision(r,phi,ra,phia);
 
         //compruebo si la nave ha impactado
         if(DistanciaColision(r,phi,ra,phia)<(Rasteroid/Dtl)) 
         {
+            DistanciaMinima=DistanciaColision(r,phi,ra,phia);
             Impacto=true;
             printf("Tiempo de choque: %lf\nVelocidad radial relativa=%lf\t Velocidad angular relativa=%lf\n",t/tmax,((pr-pra/Masteroid*m)*Dtl),((pphi/r-pphia/Masteroid*m/ra)*Dtl));
         }
@@ -137,15 +143,35 @@ int main(void)
     }
     
     //Distancia a colision
-    printf("Distancia a colision: %lf\n",DistanciaMinima*Dtl);         
+    printf("Distancia a colision en radios del asteroide: %lf\n",DistanciaMinima*Dtl/Rasteroid);         
 
 
     //resultados finales
-    printf("%i impulsos.\n Energia usada: %lf\n",impulsos,energiausada);
+    printf("%i impulsos.\n Energia usada en megatones: %lf\n",impulsos,energiausada/(4.18E15));
+
+
+    //abro los ficheros
+    resultados2=fopen("resultados2.txt","w");
+    variablesfragmentos(&rf1,&phif1,&prf1,&pphif1,&rf2,&phif2,&prf2,&pphif2,energiabomba,ra,phia,pra,pphia,m);
+    while((t<tmax)&&(Impacto))
+    {
+        //escribo resultados
+        if(((contador%10000)==0))
+        {
+            escribeanimacion2(rf1,phif1,rf2,phif2,t,resultados2,angulolunainicial);                       
+        }        
+        //simulo los movimientos
+        
+        RK4asteroid(&rf1,&phif1,&prf1,&pphif1,h,&t,angulolunainicial,m*2);
+        RK4asteroid(&rf2,&phif2,&prf2,&pphif2,h,&t,angulolunainicial,m*2);
+        t=t+h;
+        contador++;
+    }
 
    
     //cierro los ficheros
     fclose(resultados);
+    fclose(resultados2);
 
 
     return 0;
@@ -307,8 +333,17 @@ void impulsor(double *pr, double velocidad, double *energia, int numeroimpulsos,
     int i;
     for(i=0;i<numeroimpulsos;i++)
     {
-        *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
-        *pr=*pr+velocidad/Dtl;
+        if(velocidad*(*pr)>0)
+        {
+            *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
+            *pr=*pr+velocidad/Dtl;        
+        }
+        else
+        {
+            *energia=*energia+0.5*m*(*pr)*Dtl*(*pr)*Dtl;
+            *energia=*energia+0.5*m*(velocidad*velocidad);
+            *pr=*pr+velocidad/Dtl;
+        }
         
     }
     return;
@@ -345,3 +380,54 @@ double DistanciaColision(double r,double phi,double ra,double phia)
     distancia=sqrt((ra*cos(phia)-r*cos(phi))*(ra*cos(phia)-r*cos(phi))+(ra*sin(phia)-r*sin(phi))*(ra*sin(phia)-r*sin(phi)));
     return distancia;
 }
+
+
+void variablesfragmentos(double *rf1,double *phif1,double *prf1,double *pphif1,double *rf2,double *phif2,double *prf2,double *pphif2,double energiabomba, double rasteroid, double phiasteroid, double prasteroid,double pphiasteroid, double m)
+{
+    double v1,v2,v0;
+    v0=2*m*Dtl*pphiasteroid/(Masteroid*rasteroid);
+    v1=sqrt(v0*v0+2*energiabomba/Masteroid);
+    v2=sqrt(-v0*v0+2*energiabomba/Masteroid);
+    *rf1=rasteroid;
+    *rf2=rasteroid;
+    *phif1=phiasteroid;
+    *phif2=phiasteroid;
+    *prf1=prasteroid;
+    *prf2=prasteroid;
+    if(pphiasteroid>0)
+    {
+        *pphif1=v1*Masteroid/(2*m/rasteroid*Dtl);
+        *pphif2=-v2*Masteroid/(2*m/rasteroid*Dtl);
+    }
+    else
+    {
+        *pphif1=-v1*Masteroid/(2*m/rasteroid*Dtl);
+        *pphif2=v2*Masteroid/(2*m/rasteroid*Dtl);
+    }
+    
+    printf("Velocidad fragmentos: %lf\n",v1);
+    return;
+}
+
+
+
+void escribeanimacion2(double rf1,double phif1,double rf2,double phif2,double t,FILE *f2, double angulolunainicial)
+{
+    double x1,y1,x2,y2,xl,yl;
+    x1=rf1*cos(phif1);
+    y1=rf1*sin(phif1);
+    xl=cos(w*t+angulolunainicial);
+    yl=sin(w*t+angulolunainicial);  
+    x2=rf2*cos(phif2);
+    y2=rf2*sin(phif2);  
+    
+    fprintf(f2,"%lf,\t%lf\n",0.,0.);
+    fprintf(f2,"%lf,\t%lf\n",xl,yl);
+    fprintf(f2,"%lf,\t%lf\n",x1,y1);
+    fprintf(f2,"%lf,\t%lf\n\n",x2,y2);
+    return;
+
+}
+
+
+

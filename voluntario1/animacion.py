@@ -49,10 +49,10 @@ file_in = "resultados.txt" # Nombre del fichero de datos
 file_out = "Space" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
-x_min = -0.4
-x_max = 7.2
-y_min = -3
-y_max = 3
+x_min = -0.1
+x_max = 3
+y_min = -1.5
+y_max = 1.5
 
 interval = 16 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta
@@ -64,7 +64,7 @@ dpi = 150 # Calidad del vídeo de salida (dots per inch)
 # Radio del planeta, en las mismas unidades que la posición
 # Puede ser un número (el radio de todos los planetas) o una lista con
 # el radio de cada uno
-planet_radius = [0.0164, 0.01, 0.00447, 0.00005]
+planet_radius = [0.0164, 0.01, 0.00047, 0.00005]
 planet_color= ["#05f082", "#a6adaa", "#f50505","#383b3a"] 
 #planet_radius = [0.5, 0.7, 1.1, 0.001]
 

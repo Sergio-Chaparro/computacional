@@ -11,7 +11,7 @@
 #define Rl  1.7374E6
 #define Masteroid   8.71E15
 #define Vasteroid   5000
-#define Rasteroid 3.46E-5
+#define Rasteroid 10000
 //librerias
 #include <math.h>
 #include <stdio.h>
@@ -47,7 +47,7 @@ int main(void)
     double r,phi,pr,pphi;
     double  m=235000;
     double v,theta;
-    double energiausada=0, vimpulsos=200;
+    double energiausada=0, vimpulsos=17;
     //variables de la luna
     double  angulolunainicial;
     //variables del cometa
@@ -67,11 +67,11 @@ int main(void)
     
     //variables principales a cambiar
     v=ve*0.993;
-    theta=0.46;
+    theta=0.483;
     h=0.01;
-    phi=1.2;
+    phi=1.213;
     tmax=8*10E4;
-    angulolunainicial=-0.85;
+    angulolunainicial=-0.837;
     
     
     //condiciones iniciales 
@@ -86,7 +86,7 @@ int main(void)
     while ((t<tmax)&&!Impacto)
     {        
         //escribo resultados
-        if((contador%100000)==0)
+        if(((contador%10000)==0))
         {
             EscribeAnimacion(r,phi,t,resultados,angulolunainicial,ra,phia);                       
         }        
@@ -101,24 +101,38 @@ int main(void)
         if(DistanciaMinima>DistanciaColision(r,phi,ra,phia))    DistanciaMinima=DistanciaColision(r,phi,ra,pphia);
 
         //compruebo si la nave ha impactado
-        if(DistanciaColision(r,phi,ra,phia)<Rasteroid) 
+        if(DistanciaColision(r,phi,ra,phia)<(Rasteroid/Dtl)) 
         {
             Impacto=true;
-            printf("velocidad radial relativa=%lf\t velocidad angular relativa=%lf\n",((pr-pra)*Dtl),((pphi/r-pphia/ra)*Dtl));
+            printf("Tiempo de choque: %lf\nVelocidad radial relativa=%lf\t Velocidad angular relativa=%lf\n",t/tmax,((pr-pra/Masteroid*m)*Dtl),((pphi/r-pphia/Masteroid*m/ra)*Dtl));
         }
 
 
         //Momentos de impulsar la nave
-        if(fabs(t-0.66*tmax)<6*h)
+        if(fabs(t-0.703*tmax)<60*h)
         {
             impulsor(&pr,-vimpulsos,&energiausada,1,m);
             impulsos=impulsos+1;            
         } 
-        //if(fabs(t-0.8*tmax)<h)
-       //{
-        //    impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
-        //    impulsos=impulsos+1;            
-        //} 
+            
+    
+        if(fabs(t-0.78*tmax)<25*h)
+        {
+            impulsor(&pr,-vimpulsos,&energiausada,1,m);
+            impulsos=impulsos+1;            
+        } 
+        if(fabs(t-0.8*tmax)<5*h)
+        {
+            impulsor(&pr,-vimpulsos,&energiausada,1,m);
+            impulsos=impulsos+1;            
+        }
+        if(fabs(t-0.8092*tmax)<6*h)
+        {
+            impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
+            impulsos=impulsos+1;            
+        } 
+
+        
 
     }
     

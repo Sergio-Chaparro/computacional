@@ -49,10 +49,10 @@ int main(void)
 
     //variables de el cohete
     double r,phi,pr,pphi;
-    double  m=235000;
+    double  m=2350000;
     double v,theta;
     double energiausada=0, vimpulsos=17;
-    double energiabomba=150*4.18E15; //primer numero megatones
+    double energiabomba=1000*4.18E15; //primer numero megatones
     //variables de la luna
     double  angulolunainicial;
     //variables del cometa
@@ -72,12 +72,12 @@ int main(void)
     
     //variables principales a cambiar
     v=ve*0.993;
-    theta=0.483;
+    theta=0.383;
     h=0.01;
-    phi=1.213;
+    phi=1.113;
     tmax=8*10E4;
-    angulolunainicial=-0.837;
-    
+    angulolunainicial=-0.957;
+    printf("Energia del lanzamiento en megatones: %lf\n",((0.5*m*v*v)/(4.18E15)));
     
     //condiciones iniciales 
     CondIniciales(&r,&phi,&pr,&pphi,t,v,theta,m);
@@ -115,24 +115,20 @@ int main(void)
 
 
         //Momentos de impulsar la nave
-        if(fabs(t-0.703*tmax)<60*h)
+        if(fabs(t-0.703*tmax)<80*h)
         {
             impulsor(&pr,-vimpulsos,&energiausada,1,m);
             impulsos=impulsos+1;            
         } 
             
     
-        if(fabs(t-0.78*tmax)<25*h)
+        if((fabs(ra*cos(phia)-r*cos(phi))<(3*Rasteroid/Dtl))&&((fabs(pr-pra/Masteroid*m)*Dtl)>2*vimpulsos)&&(t>0.6*tmax))
         {
             impulsor(&pr,-vimpulsos,&energiausada,1,m);
             impulsos=impulsos+1;            
         } 
-        if(fabs(t-0.8*tmax)<5*h)
-        {
-            impulsor(&pr,-vimpulsos,&energiausada,1,m);
-            impulsos=impulsos+1;            
-        }
-        if(fabs(t-0.8092*tmax)<6*h)
+        
+        if((fabs(ra*sin(phia)-r*sin(phi))<(Rasteroid/Dtl))&&((fabs(pphi/r-pphia/Masteroid*m/ra)*Dtl)>vimpulsos)&&(t>0.6*tmax))
         {
             impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
             impulsos=impulsos+1;            
@@ -152,7 +148,8 @@ int main(void)
 
     //abro los ficheros
     resultados2=fopen("resultados2.txt","w");
-    variablesfragmentos(&rf1,&phif1,&prf1,&pphif1,&rf2,&phif2,&prf2,&pphif2,energiabomba,ra,phia,pra,pphia,m);
+    if(Impacto)     variablesfragmentos(&rf1,&phif1,&prf1,&pphif1,&rf2,&phif2,&prf2,&pphif2,energiabomba,ra,phia,pra,pphia,m);
+    
     while((t<tmax)&&(Impacto))
     {
         //escribo resultados
@@ -172,7 +169,7 @@ int main(void)
     //cierro los ficheros
     fclose(resultados);
     fclose(resultados2);
-
+    printf("Final de ejecucion.\n");
 
     return 0;
 }
@@ -333,16 +330,16 @@ void impulsor(double *pr, double velocidad, double *energia, int numeroimpulsos,
     int i;
     for(i=0;i<numeroimpulsos;i++)
     {
-        if(velocidad*(*pr)>0)
-        {
-            *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
-            *pr=*pr+velocidad/Dtl;        
-        }
-        else
+        if((velocidad*(*pr*Dtl)<0)&&(fabs(velocidad)>fabs(*pr*Dtl)))
         {
             *energia=*energia+0.5*m*(*pr)*Dtl*(*pr)*Dtl;
             *energia=*energia+0.5*m*(velocidad*velocidad);
-            *pr=*pr+velocidad/Dtl;
+            *pr=*pr+velocidad/Dtl;            
+        }
+        else
+        {
+            *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
+            *pr=*pr+velocidad/Dtl;            
         }
         
     }
@@ -384,28 +381,18 @@ double DistanciaColision(double r,double phi,double ra,double phia)
 
 void variablesfragmentos(double *rf1,double *phif1,double *prf1,double *pphif1,double *rf2,double *phif2,double *prf2,double *pphif2,double energiabomba, double rasteroid, double phiasteroid, double prasteroid,double pphiasteroid, double m)
 {
-    double v1,v2,v0;
-    v0=2*m*Dtl*pphiasteroid/(Masteroid*rasteroid);
-    v1=sqrt(v0*v0+2*energiabomba/Masteroid);
-    v2=sqrt(-v0*v0+2*energiabomba/Masteroid);
+    double v;    
+    v=sqrt(2*energiabomba/Masteroid);    
     *rf1=rasteroid;
     *rf2=rasteroid;
     *phif1=phiasteroid;
     *phif2=phiasteroid;
     *prf1=prasteroid;
     *prf2=prasteroid;
-    if(pphiasteroid>0)
-    {
-        *pphif1=v1*Masteroid/(2*m/rasteroid*Dtl);
-        *pphif2=-v2*Masteroid/(2*m/rasteroid*Dtl);
-    }
-    else
-    {
-        *pphif1=-v1*Masteroid/(2*m/rasteroid*Dtl);
-        *pphif2=v2*Masteroid/(2*m/rasteroid*Dtl);
-    }
+    *pphif1=v*Masteroid/(2*m/rasteroid*Dtl);
+    *pphif2=-v*Masteroid/(2*m/rasteroid*Dtl);
     
-    printf("Velocidad fragmentos: %lf\n",v1);
+    printf("Velocidad fragmentos: %lf\n",v);
     return;
 }
 

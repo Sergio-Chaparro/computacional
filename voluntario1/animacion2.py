@@ -50,9 +50,9 @@ file_out = "Space2" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
 x_min = -0.1
-x_max = 3
-y_min = -1.5
-y_max = 1.5
+x_max = 1
+y_min = -0.5
+y_max = 0.5
 
 interval = 16 # Tiempo entre fotogramas en milisegundos
 show_trail = True # Muestra la "estela" del planeta

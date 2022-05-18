@@ -52,7 +52,8 @@ int main(void)
     double  m=2350000;
     double v,theta;
     double energiausada=0, vimpulsos=17;
-    double energiabomba=1000*4.18E15; //primer numero megatones
+    int MegatonesBomba=10000;
+    double energiabomba=MegatonesBomba*4.18E15; //primer numero megatones
     //variables de la luna
     double  angulolunainicial;
     //variables del cometa
@@ -71,12 +72,12 @@ int main(void)
     ve=sqrt(2*G*Mt/Rt);
     
     //variables principales a cambiar
-    v=ve*0.993;
-    theta=0.383;
+    v=ve*1.193;
+    theta=0.083;
     h=0.01;
-    phi=1.113;
+    phi=0.613;
     tmax=8*10E4;
-    angulolunainicial=-0.957;
+    angulolunainicial=-0.187;
     printf("Energia del lanzamiento en megatones: %lf\n",((0.5*m*v*v)/(4.18E15)));
     
     //condiciones iniciales 
@@ -110,28 +111,55 @@ int main(void)
         {
             DistanciaMinima=DistanciaColision(r,phi,ra,phia);
             Impacto=true;
-            printf("Tiempo de choque: %lf\nVelocidad radial relativa=%lf\t Velocidad angular relativa=%lf\n",t/tmax,((pr-pra/Masteroid*m)*Dtl),((pphi/r-pphia/Masteroid*m/ra)*Dtl));
+            printf("Tiempo de choque: %lf\nVelocidad radial relativa=%lf\t Velocidad angular relativa=%lf\n",t/tmax,((pr-pra*m/Masteroid)*Dtl),((pphi/r-pphia/ra*m/Masteroid)*Dtl));
+            printf("Distancia explosion: %lf\n",ra);
+            printf("Energia de la bomba en megatones: %i\n",MegatonesBomba);
         }
 
 
         //Momentos de impulsar la nave
-        if(fabs(t-0.703*tmax)<80*h)
+        if((t>0.15*tmax)&&(r>(Rt/Dtl)))
         {
-            impulsor(&pr,-vimpulsos,&energiausada,1,m);
-            impulsos=impulsos+1;            
-        } 
+            if(fabs(t-0.378*tmax)<275*h)
+            {
+                impulsor(&pr,-vimpulsos,&energiausada,1,m);
+                impulsos=impulsos+1;            
+            } 
             
-    
-        if((fabs(ra*cos(phia)-r*cos(phi))<(3*Rasteroid/Dtl))&&((fabs(pr-pra/Masteroid*m)*Dtl)>2*vimpulsos)&&(t>0.6*tmax))
-        {
-            impulsor(&pr,-vimpulsos,&energiausada,1,m);
-            impulsos=impulsos+1;            
-        } 
+            if(fabs(ra-r)<(1.12*Rasteroid/Dtl))
+            {
+                if((fabs(pr-pra*m/Masteroid)*Dtl)>(0.8*vimpulsos))
+                {
+                    impulsor(&pr,-vimpulsos,&energiausada,1,m);
+                    impulsos=impulsos+1;            
+                }                
+                           
+            }
+
+            if(fabs(phia-phi)>(atan(Rasteroid/Dtl/ra)))
+            {
+                if(((phia-phi)<0)&&((fabs(pphi/r-pphia/ra*m/Masteroid)*Dtl)<(5*vimpulsos)))
+                {                    
+                    impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
+                    impulsos=impulsos+1;    
+                }
+                if(((phia-phi)>0)&&((fabs(pphi/r-pphia/ra*m/Masteroid)*Dtl)<(5*vimpulsos)))
+                {                    
+                    impulsophi(&pphi,r,vimpulsos,&energiausada,1,m);
+                    impulsos=impulsos+1;    
+                }
+            }
+
+            if(fabs(phia-phi)<(atan(Rasteroid/Dtl/ra)))
+            {
+                if(((pphi/r-pphia/ra*m/Masteroid)*Dtl)>vimpulsos)
+                {
+                    impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
+                    impulsos=impulsos+1;            
+                }
+            }
         
-        if((fabs(ra*sin(phia)-r*sin(phi))<(Rasteroid/Dtl))&&((fabs(pphi/r-pphia/Masteroid*m/ra)*Dtl)>vimpulsos)&&(t>0.6*tmax))
-        {
-            impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
-            impulsos=impulsos+1;            
+            
         } 
 
         
@@ -143,7 +171,7 @@ int main(void)
 
 
     //resultados finales
-    printf("%i impulsos.\n Energia usada en megatones: %lf\n",impulsos,energiausada/(4.18E15));
+    printf("%i impulsos.\nEnergia usada en megatones: %lf\n",impulsos,energiausada/(4.18E15));
 
 
     //abro los ficheros
@@ -153,7 +181,7 @@ int main(void)
     while((t<tmax)&&(Impacto))
     {
         //escribo resultados
-        if(((contador%10000)==0))
+        if(((contador%20000)==0))
         {
             escribeanimacion2(rf1,phif1,rf2,phif2,t,resultados2,angulolunainicial);                       
         }        
@@ -338,7 +366,7 @@ void impulsor(double *pr, double velocidad, double *energia, int numeroimpulsos,
         }
         else
         {
-            *energia=*energia+0.5*m*((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
+            *energia=*energia+0.5*m*fabs((velocidad+(*pr)*Dtl)*(velocidad+(*pr)*Dtl)-(*pr)*(*pr)*(Dtl*Dtl));
             *pr=*pr+velocidad/Dtl;            
         }
         
@@ -351,7 +379,7 @@ void impulsophi(double *pphi,double r,double velocidad, double *energia, int num
     int i;
     for(i=0;i<numeroimpulsos;i++)
     {
-        *energia=*energia+0.5*m*((velocidad+(*pphi)*Dtl/r)*(velocidad+(*pphi)*Dtl/r)-(*pphi)*(*pphi)*(Dtl*Dtl)/(r*r));
+        *energia=*energia+0.5*m*fabs((velocidad+(*pphi)*Dtl/r)*(velocidad+(*pphi)*Dtl/r)-(*pphi)*(*pphi)*(Dtl*Dtl)/(r*r));
         *pphi=*pphi+velocidad/Dtl*r;
         
     }
@@ -415,6 +443,4 @@ void escribeanimacion2(double rf1,double phif1,double rf2,double phif2,double t,
     return;
 
 }
-
-
 

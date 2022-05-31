@@ -65,20 +65,20 @@ int main(void)
 
     //otras variables
     FILE *resultados,*resultados2;
-    
+    double DistanciExtincion=10*Dtl;
     
     int impulsos=0;
     //calculo la velocidad de escape
     ve=sqrt(2*G*Mt/Rt);
     
     //variables principales a cambiar
-    v=ve*1.01;
+    v=ve*0.994;
     theta=0.083;
     h=0.01;
     phi=0.613;
     tmax=8*10E4;
-    angulolunainicial=-0.653;
-    printf("Velocidad de despegue(Ve) : %lf \nAngulo de despegue : %lf\nAngulo inicial de la Luna : %lf \n",v/ve,theta,angulolunainicial);
+    angulolunainicial=-0.793;
+    printf("Velocidad de despegue(Ve) : %lf \nAngulo de despegue : %lf\nLugar de lanzamiento : %lf\nAngulo inicial de la Luna : %lf \n",v/ve,theta,phi,angulolunainicial);
     printf("Energia del lanzamiento en megatones: %lf\n",((0.5*m*v*v)/(4.18E15)));
     
     //condiciones iniciales 
@@ -88,7 +88,11 @@ int main(void)
     //abro los ficheros
     resultados=fopen("resultados.txt","w");
    
-
+    double Tiempoimpulso=0.578*tmax;
+    int anchuraimpuslo=25;
+    int ImpulsosR=0, ImpulsosPhi1=0, ImpulsosPhi2=0;;
+    printf("Impulsos antes de aproximación: %i\n Tiempo del impulso central: %lf \n",anchuraimpuslo*2+1,Tiempoimpulso/tmax);
+        
    //ciclo principal donde se desarrolla la simulacion
     while ((t<tmax)&&!Impacto)
     {        
@@ -117,9 +121,6 @@ int main(void)
             printf("Energia de la bomba en megatones: %i\n",MegatonesBomba);
         }
 
-        double Tiempoimpulso=0.578*tmax;
-        int anchuraimpuslo=25;
-        printf("Impulsos antes de aproximación: %i\n Tiempo del impulso central: %lf \n",anchuraimpuslo*2+1,Tiempoimpulso/tmax);
         //Momentos de impulsar la nave
         if((t>0.15*tmax)&&(r>(Rt/Dtl)))
         {
@@ -129,12 +130,13 @@ int main(void)
                 impulsos=impulsos+1;            
             } 
             
-            if(fabs(ra-r)<(1.12*Rasteroid/Dtl))
+            if(fabs(ra-r)<(1.15*Rasteroid/Dtl))
             {
                 if((fabs(pr-pra*m/Masteroid)*Dtl)>(1.1*vimpulsos))
                 {
                     impulsor(&pr,-vimpulsos,&energiausada,1,m);
-                    impulsos=impulsos+1;            
+                    impulsos=impulsos+1;
+                    ImpulsosR++;            
                 }                
                            
             }
@@ -144,12 +146,14 @@ int main(void)
                 if(((phia-phi)<0)&&((fabs(pphi/r-pphia/ra*m/Masteroid)*Dtl)<(5*vimpulsos)))
                 {                    
                     impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
-                    impulsos=impulsos+1;    
+                    impulsos=impulsos+1; 
+                    ImpulsosPhi2++;   
                 }
                 if(((phia-phi)>0)&&((fabs(pphi/r-pphia/ra*m/Masteroid)*Dtl)<(5*vimpulsos)))
                 {                    
                     impulsophi(&pphi,r,vimpulsos,&energiausada,1,m);
-                    impulsos=impulsos+1;    
+                    impulsos=impulsos+1;   
+                    ImpulsosPhi2++; 
                 }
             }
 
@@ -158,7 +162,8 @@ int main(void)
                 if(((pphi/r-pphia/ra*m/Masteroid)*Dtl)>vimpulsos)
                 {
                     impulsophi(&pphi,r,-vimpulsos,&energiausada,1,m);
-                    impulsos=impulsos+1;            
+                    impulsos=impulsos+1;
+                    ImpulsosPhi1++;            
                 }
             }
         
@@ -168,7 +173,9 @@ int main(void)
         
 
     }
-    
+    printf("Impulsos radiales:%i\nImpulsos Angulares: %i\nImpulsos de ajuste: %i\n",ImpulsosR,ImpulsosPhi1,ImpulsosPhi2);
+
+
     //Distancia a colision
     printf("Distancia a colision en radios del asteroide: %lf\n",DistanciaMinima*Dtl/Rasteroid);         
 
@@ -194,13 +201,22 @@ int main(void)
         RK4asteroid(&rf2,&phif2,&prf2,&pphif2,h,&t,angulolunainicial,m*2);
         t=t+h;
         contador++;
+        if((rf1*Dtl)<DistanciExtincion)
+        {
+             DistanciExtincion=rf1*Dtl;
+        }
+        if((rf2*Dtl)<DistanciExtincion)
+        {
+             DistanciExtincion=rf2*Dtl;
+        }
+        
     }
 
-   
+    printf("Distancia extincion(Km):%lf\n",DistanciExtincion/1000);
     //cierro los ficheros
     fclose(resultados);
     fclose(resultados2);
-    printf("Final de ejecucion, tiempo: %lf\n",t);
+    printf("Final de ejecucion, tiempo: %lf\n",t/tmax);
 
     return 0;
 }

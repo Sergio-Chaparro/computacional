@@ -72,12 +72,13 @@ int main(void)
     ve=sqrt(2*G*Mt/Rt);
     
     //variables principales a cambiar
-    v=ve*1.193;
+    v=ve*1.01;
     theta=0.083;
     h=0.01;
     phi=0.613;
     tmax=8*10E4;
-    angulolunainicial=-0.187;
+    angulolunainicial=-0.653;
+    printf("Velocidad de despegue(Ve) : %lf \nAngulo de despegue : %lf\nAngulo inicial de la Luna : %lf \n",v/ve,theta,angulolunainicial);
     printf("Energia del lanzamiento en megatones: %lf\n",((0.5*m*v*v)/(4.18E15)));
     
     //condiciones iniciales 
@@ -116,11 +117,13 @@ int main(void)
             printf("Energia de la bomba en megatones: %i\n",MegatonesBomba);
         }
 
-
+        double Tiempoimpulso=0.578*tmax;
+        int anchuraimpuslo=25;
+        printf("Impulsos antes de aproximación: %i\n Tiempo del impulso central: %lf \n",anchuraimpuslo*2+1,Tiempoimpulso/tmax);
         //Momentos de impulsar la nave
         if((t>0.15*tmax)&&(r>(Rt/Dtl)))
         {
-            if(fabs(t-0.378*tmax)<275*h)
+            if(fabs(t-Tiempoimpulso)<anchuraimpuslo*h)
             {
                 impulsor(&pr,-vimpulsos,&energiausada,1,m);
                 impulsos=impulsos+1;            
@@ -128,7 +131,7 @@ int main(void)
             
             if(fabs(ra-r)<(1.12*Rasteroid/Dtl))
             {
-                if((fabs(pr-pra*m/Masteroid)*Dtl)>(0.8*vimpulsos))
+                if((fabs(pr-pra*m/Masteroid)*Dtl)>(1.1*vimpulsos))
                 {
                     impulsor(&pr,-vimpulsos,&energiausada,1,m);
                     impulsos=impulsos+1;            
@@ -197,7 +200,7 @@ int main(void)
     //cierro los ficheros
     fclose(resultados);
     fclose(resultados2);
-    printf("Final de ejecucion.\n");
+    printf("Final de ejecucion, tiempo: %lf\n",t);
 
     return 0;
 }

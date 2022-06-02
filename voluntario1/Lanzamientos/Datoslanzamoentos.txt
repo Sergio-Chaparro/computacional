@@ -1,0 +1,111 @@
+Lanzamiento 1
+Velocidad de despegue(Ve) : 0.992000 
+Angulo de despegue : 0.083000
+Lugar de lanzamiento : 0.613000
+Angulo inicial de la Luna : -1.200000 
+Energia del lanzamiento en megatones: 0.034561
+Impulsos antes de aproximación: 71
+ Tiempo del impulso central: 0.550000 
+Tiempo de choque: 0.871323
+Velocidad radial relativa=17.803721      Velocidad angular relativa=6.882148
+Distancia explosion: 0.870061
+Energia de la bomba en megatones: 91000
+Impulsos radiales:252
+Impulsos Angulares: 40
+Impulsos de ajuste: 37
+Distancia a colision en radios del asteroide: 0.999986
+399 impulsos.
+Energia usada en megatones: 0.007704
+Velocidad fragmentos: 295.538971
+Distancia extincion(Km):6506.439769
+Final de ejecucion, tiempo: 1.000000
+
+
+Lanzamiento 2
+Velocidad de despegue(Ve) : 0.995000 
+Angulo de despegue : 0.083000
+Lugar de lanzamiento : 0.613000
+Angulo inicial de la Luna : -0.930000 
+Energia del lanzamiento en megatones: 0.034770
+Impulsos antes de aproximación: 71
+ Tiempo del impulso central: 0.580000 
+Tiempo de choque: 0.792374
+Velocidad radial relativa=15.498234      Velocidad angular relativa=-0.533664
+Distancia explosion: 1.715790
+Energia de la bomba en megatones: 23200
+Impulsos radiales:288
+Impulsos Angulares: 28
+Impulsos de ajuste: 36
+Distancia a colision en radios del asteroide: 0.999999
+422 impulsos.
+Energia usada en megatones: 0.007680
+Velocidad fragmentos: 149.223786
+Distancia extincion(Km):6508.303657
+Final de ejecucion, tiempo: 1.000000
+
+Lanzamiento 3
+Velocidad de despegue(Ve) : 0.998500 
+Angulo de despegue : 0.083000
+Lugar de lanzamiento : 0.613000
+Angulo inicial de la Luna : -0.816000 
+Energia del lanzamiento en megatones: 0.035015
+Impulsos antes de aproximación: 111
+ Tiempo del impulso central: 0.680000 
+Tiempo de choque: 0.715759
+Velocidad radial relativa=5.778387       Velocidad angular relativa=14.490148
+Distancia explosion: 2.525666
+Energia de la bomba en megatones: 10700
+Impulsos radiales:279
+Impulsos Angulares: 94
+Impulsos de ajuste: 489
+Distancia a colision en radios del asteroide: 0.999998
+972 impulsos.
+Energia usada en megatones: 0.008135
+Velocidad fragmentos: 101.341178
+Distancia extincion(Km):6518.879767
+Final de ejecucion, tiempo: 1.000000
+
+Lanzamiento 4
+Velocidad de despegue(Ve) : 1.030000 
+Angulo de despegue : 0.083000
+Lugar de lanzamiento : 0.613000
+Angulo inicial de la Luna : -0.483000 
+Energia del lanzamiento en megatones: 0.037259
+Impulsos antes de aproximación: 251
+ Tiempo del impulso central: 0.560000 
+Tiempo de choque: 0.590267
+Velocidad radial relativa=2.702063       Velocidad angular relativa=-2.677101
+Distancia explosion: 3.843514
+Energia de la bomba en megatones: 4600
+Impulsos radiales:234
+Impulsos Angulares: 22
+Impulsos de ajuste: 70
+Distancia a colision en radios del asteroide: 0.999999
+576 impulsos.
+Energia usada en megatones: 0.010021
+Velocidad fragmentos: 66.446633
+Distancia extincion(Km):6528.984948
+Final de ejecucion, tiempo: 1.000000
+
+Lanzamiento 5
+Velocidad de despegue(Ve) : 1.130000 
+Angulo de despegue : 0.083000
+Lugar de lanzamiento : 0.613000
+Angulo inicial de la Luna : -0.249000 
+Energia del lanzamiento en megatones: 0.044845
+Impulsos antes de aproximación: 391
+ Tiempo del impulso central: 0.420000 
+Tiempo de choque: 0.443635
+Velocidad radial relativa=11.419157      Velocidad angular relativa=3.354339
+Distancia explosion: 5.376967
+Energia de la bomba en megatones: 2350
+Impulsos radiales:262
+Impulsos Angulares: 52
+Impulsos de ajuste: 111
+Distancia a colision en radios del asteroide: 1.000000
+815 impulsos.
+Energia usada en megatones: 0.017475
+Velocidad fragmentos: 47.492824
+Distancia extincion(Km):6540.366657
+Final de ejecucion, tiempo: 1.000000
+

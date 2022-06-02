@@ -50,7 +50,7 @@ file_out = "Space2" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
 x_min = -0.1
-x_max = 6
+x_max = 4
 y_min = -2.5
 y_max = 2.5
 
